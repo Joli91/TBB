@@ -8,7 +8,7 @@ import pandas as pd
 url = "https://jobsearch.api.jobtechdev.se/search"
 
 # Search phrase
-search_text = "stockholm"
+search_text = "it"
 
 # Headers for authentication
 headers = {
