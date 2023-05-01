@@ -3,14 +3,14 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Load data
-data = pd.read_csv('your_data.csv')
+data = pd.read_json('Data/Testfil_samtliga.json')
 
 # Title
 st.title('Data Visualization Template')
 
 # Show data
 st.write(data)
-
+'''
 # Create bar chart
 st.subheader('Bar Chart')
 fig, ax = plt.subplots()
@@ -28,3 +28,4 @@ st.subheader('Scatter Plot')
 fig, ax = plt.subplots()
 ax.scatter(data['column1'], data['column2'])
 st.pyplot(fig)
+'''
