@@ -24,12 +24,7 @@ with col1:
     st.markdown(f'<span style="word-wrap:break-word;">{syftestext}</span>', unsafe_allow_html=True)
 
 with col2:
-    st.header('Total inom IT')
-    st.header('Dåliga ord:')
-    bad_words = bad_word_count()
-    st.table(bad_words)
-
-    # Slider för år
+        # Slider för år
     min_value = df['publication_date'].min()
     max_value = df['publication_date'].max()
 
@@ -39,6 +34,12 @@ with col2:
     # Selectbox för yrkesroll
     occupation_group_list = df['occupation_group.label'].unique().tolist()
     option = st.selectbox('Välj yrkesroll:', occupation_group_list)
+    st.header('Total inom IT')
+    st.header('Dåliga ord:')
+    bad_words = bad_word_count(option)
+    st.table(bad_words)
+
+
     
 
 

@@ -2,7 +2,9 @@ import re
 import json
 import pandas as pd
 
-def bad_word_count():
+def bad_word_count(roll):
+    '''Summerar antal dåliga ord i datasetet och skapar en sorterad df med antal förekomster av 
+    respektive ord'''
 # Load the JSON file
     with open('Data/Testfil_FINAL.json', 'r', encoding='utf-8') as f:
         job_ads = json.load(f)
@@ -20,7 +22,7 @@ def bad_word_count():
     # Count occurrences of target words
     word_counts = {}
     for ad in job_ads:
-        if ad['description.text'] is not None:
+        if ad['description.text'] is not None and ad['occupation_group.label'] == roll:
             ad_text = ad['description.text'].lower().replace('.', ' ')
             for target_word in target_words:
                 count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
