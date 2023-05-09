@@ -1,0 +1,12 @@
+driven: 691
+stark: 461
+analytisk: 252
+beslut: 233
+analys: 225
+chef: 155
+drivkraft: 122
+självständig: 94
+kompetent: 92
+individer: 78
+arbetskraft: 12
+bevisad: 1
