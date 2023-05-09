@@ -1,5 +1,6 @@
 import re
 import json
+import pandas as pd
 
 def bad_word_count():
 # Load the JSON file
@@ -36,5 +37,8 @@ def bad_word_count():
     # Sort the dictionary by its values in descending order
     sorted_dict = dict(sorted(target_word_counts.items(), key=lambda x: x[1], reverse=True))
 
-
-    return sorted_dict
+    df = pd.DataFrame.from_dict(sorted_dict, orient='index', columns=['Count'])
+    df = df.reset_index()
+    df.columns = ['Ord', 'Antal']
+    df.set_index('Ord', inplace=True)
+    return df
