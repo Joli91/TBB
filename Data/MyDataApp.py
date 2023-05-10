@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import json
-from data_methods import bad_word_count
+from data_methods import bad_word_count, bad_ads_and_words
 
 
 
@@ -41,6 +41,8 @@ with col2:
     occupation_group_list = df['occupation_group.label'].unique().tolist()
     option = st.selectbox('Välj yrkesroll:', occupation_group_list)
     st.header('Total inom IT')
+    bad_ads = bad_ads_and_words(job_ads)
+    st.table(bad_ads)
     st.header('Dåliga ord:')
     bad_words = bad_word_count(option, job_ads)
     st.table(bad_words)

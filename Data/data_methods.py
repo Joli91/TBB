@@ -59,17 +59,19 @@ def bad_ads_and_words(job_ads):
     # Count the average amount of bad words for each job ad
     average_bad_words = total_bad_words / bad_ads
     # Count the percentage of bad ads from total ads
-    percentage_bad_ads = bad_ads / len(job_ads) * 100
+    percentage_bad_ads = str(int(bad_ads / len(job_ads) * 100)) + '%'
 
     #print('Amount of bad ads:', percentage_bad_ads, '%')
     #print('Total amount of bad words in bad ads:', total_bad_words)
     #print('Total amount of bad ads:', bad_ads)
     #print("Average bad words per bad ad:", average_bad_words)
 
-    df2 = pd.DataFrame()
-    df2 = df2.reset_index()
-    df2.columns = ['Ord', 'Antal']
-    df2.set_index('Ord', inplace=True)
+    # Create a Pandas DataFrame with the results
+    df2 = pd.DataFrame({
+        "Average bad words per bad ad": [average_bad_words],
+        "Percentage of bad ads": [percentage_bad_ads]
+    })
+
     return df2
 
     #return average_bad_words, percentage_bad_ads
