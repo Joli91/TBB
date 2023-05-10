@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import json
 from data_methods import bad_word_count
 
 
@@ -10,7 +11,12 @@ syftestext = 'et pharetra pharetra massa massa ultricies mi quis hendrerit dolor
 # Load data
 df = pd.read_json('Data/Testfil_FINAL.json')
 
+with open('Data/Testfil_FINAL.json', 'r', encoding='utf-8') as f:
+    job_ads = json.load(f)
 
+# Koden nedan hämtar bara 3 variabler från JSON-filen (förhoppningsvis snabbare vid större JSON-fil)
+#with open('Data/Testfil_FINAL.json', 'r', encoding='utf-8') as f:
+#    job_ads = json.load(f, object_hook=lambda d: {k: v for k, v in d.items() if k in ('description.text', 'occupation_group.label', 'Bad_words')})
 
 
 # Title
@@ -36,7 +42,7 @@ with col2:
     option = st.selectbox('Välj yrkesroll:', occupation_group_list)
     st.header('Total inom IT')
     st.header('Dåliga ord:')
-    bad_words = bad_word_count(option)
+    bad_words = bad_word_count(option, job_ads)
     st.table(bad_words)
 
 
