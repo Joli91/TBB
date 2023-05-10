@@ -44,3 +44,34 @@ def bad_word_count(roll):
     df.columns = ['Ord', 'Antal']
     df.set_index('Ord', inplace=True)
     return df
+
+def bad_ads_and_words(job_ads):
+    '''Räknar antal annonser som innehåller dåliga ord, summerar antalet dåliga ord
+    och räknar ut ett genomsnitt på antal dåliga ord per dålig annons samt procentsats'''
+    bad_ads = 0
+    total_bad_words = 0
+
+    for ad in job_ads:
+        if ad['Bad_words'] != 0:
+            bad_ads += 1
+            total_bad_words += ad['Bad_words']
+        else:
+            continue
+
+    # Count the average amount of bad words for each job ad
+    average_bad_words = total_bad_words / bad_ads
+    # Count the percentage of bad ads from total ads
+    percentage_bad_ads = bad_ads / len(job_ads) * 100
+
+    #print('Amount of bad ads:', percentage_bad_ads, '%')
+    #print('Total amount of bad words in bad ads:', total_bad_words)
+    #print('Total amount of bad ads:', bad_ads)
+    #print("Average bad words per bad ad:", average_bad_words)
+
+    df2 = pd.DataFrame()
+    df2 = df2.reset_index()
+    df2.columns = ['Ord', 'Antal']
+    df2.set_index('Ord', inplace=True)
+    return df2
+
+    #return average_bad_words, percentage_bad_ads
