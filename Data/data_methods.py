@@ -115,3 +115,22 @@ def bar_chart(job_ads):
     ax.set_ylabel('Antal')
     
     return fig
+
+def bar_chart_st(job_ads):
+    red_ads = 0
+    yellow_ads = 0
+    green_ads = 0
+
+    for ad in job_ads:
+        if ad['Bad_words'] == 0:
+            green_ads += 1
+        elif ad['Bad_words'] == 1:
+            yellow_ads += 1
+        elif ad['Bad_words'] > 1:
+            red_ads += 1
+        else:
+            continue
+
+    return green_ads, yellow_ads, red_ads
+
+    
