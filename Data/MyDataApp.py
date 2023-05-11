@@ -41,14 +41,13 @@ st.header('Syfte')
 # Syftestext
 st.markdown(f'<span style="word-wrap:break-word;">{syftestext}</span>', unsafe_allow_html=True)
 
+st.divider()
 # Kolumner 
 
-col1, col2 = st.columns([1,1])
-with col1:
-    ''
+col1, col2, col3 = st.columns([1,1,1])
 
 
-with col2:
+with col3:
 
     # Interatkivitet
     # Slider för år
@@ -74,13 +73,16 @@ with col2:
 
     job_ads = df[filter]
     ##############################
+
+with col1:
     
     # Sektion för Total inom IT
     st.header('Total inom IT')
     bad_ads = bad_ads_and_words(job_ads)
     st.table(bad_ads)
     ##############################
-    
+
+with col2:
     # Sektion för dåliga ord
     st.header('Dåliga ord:')
     bad_words = bad_word_count(job_ads)
