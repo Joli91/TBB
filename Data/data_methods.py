@@ -2,7 +2,7 @@ import re
 import json
 import pandas as pd
 
-def bad_word_count(roll, job_ads):
+def bad_word_count(job_ads):
     '''Summerar antal dåliga ord i datasetet och skapar en sorterad df med antal förekomster av 
     respektive ord'''
 
@@ -19,15 +19,15 @@ def bad_word_count(roll, job_ads):
 
     # Count occurrences of target words
     word_counts = {}
-    for ad in job_ads:
-        if ad['occupation_group.label'] == roll:
-            ad_text = ad['description.text'].lower().replace('.', ' ')
-            for target_word in target_words:
-                count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
-                if target_word in word_counts:
-                    word_counts[target_word] += count
-                else:
-                    word_counts[target_word] = count
+    for index, ad in job_ads.iterrows():
+        #if ad['occupation_group.label'] in occupation_group and int(ad['publication_date']) in year_interval:
+        ad_text = ad['description.text'].lower().replace('.', ' ')
+        for target_word in target_words:
+            count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
+            if target_word in word_counts:
+                word_counts[target_word] += count
+            else:
+                word_counts[target_word] = count
 
 
     # Create a dictionary with the counts of target words
@@ -40,7 +40,9 @@ def bad_word_count(roll, job_ads):
     df = pd.DataFrame.from_dict(sorted_dict, orient='index', columns=['Count'])
     df = df.reset_index()
     df.columns = ['Ord', 'Antal']
-    df.set_index('Ord', inplace=True)
+    '''
+    df.set_index('Ord', inplace=True)'''
+
     return df
 
 def bad_ads_and_words(job_ads):
@@ -49,7 +51,7 @@ def bad_ads_and_words(job_ads):
     bad_ads = 0
     total_bad_words = 0
 
-    for ad in job_ads:
+    for index, ad in job_ads.iterrows():
         if ad['Bad_words'] != 0:
             bad_ads += 1
             total_bad_words += ad['Bad_words']
@@ -68,10 +70,15 @@ def bad_ads_and_words(job_ads):
 
     # Create a Pandas DataFrame with the results
     df2 = pd.DataFrame({
-        "Average bad words per bad ad": [average_bad_words],
-        "Percentage of bad ads": [percentage_bad_ads]
+        "Snitt dåliga ord per annons": [average_bad_words],
+        "Andel dåliga annonser": [percentage_bad_ads]
     })
 
     return df2
 
     #return average_bad_words, percentage_bad_ads
+
+
+def filter_years_and_occ_group(df):
+    '''funktion för filtrering av data enligt de interaktiva element vi har'''
+    return
