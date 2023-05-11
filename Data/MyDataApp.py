@@ -8,7 +8,6 @@ from data_methods import bad_word_count, bad_ads_and_words
 # Syftestext input
 with open('Data/syftestext.txt', 'r', encoding='utf-8') as g:
     syftestext = g.read()
-syftestext = 'Studien som verktyget är framtaget ur kartlägger stora mångfalds- och jämställdhestklyftor inom IT-branschen i Sverige idag. Det som undersökts är den ojämna fördelningen mellan män och kvinnor inom branschen samt vad detta kan bero på. Samtidigt lider IT-branschen av stor kompetensbrist vilket delvis kan spåras tillbaka till bristen på kvinnor inom IT. Verktyget visualiserar data från ett öppet dataset, tillgängliggjort av JobTech, angående arbetsannonser under perioden 2016-2023. Genom (vilken metod vi använt oss av, NLP, Klustring osv) analyserar verktyget användningen av särskilda ord i annonserna. De valda orden är enligt studier* definierade att påverka i vilken utsträckning kvinnor söker jobb beroende på ordens förekomst i annonsen. Syftet med verktyget är att sprida kunskap samt skapa medvetenhet kring hur man som arbetsgivare kan anpassa formuleringen av sina arbetsannonser. Genom att undvika användningen av dessa ord är vår förhoppning att rekrytera fler kvinnor till IT-branschen för att skapa en mer jämställd och mångfaldig bransch.'
 
 # Load data
 df = pd.read_json('Data/Testfil_FINAL.json')
