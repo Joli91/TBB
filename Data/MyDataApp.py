@@ -17,7 +17,7 @@ with open('Data/Testfil_FINAL.json', 'r', encoding='utf-8') as f:
 
 # Koden nedan hämtar bara 3 variabler från JSON-filen (förhoppningsvis snabbare vid större JSON-fil)
 #with open('Data/Testfil_FINAL.json', 'r', encoding='utf-8') as f:
-#    job_ads = json.load(f, object_hook=lambda d: {k: v for k, v in d.items() if k in ('description.text', 'occupation_group.label', 'Bad_words')})
+#    job_ads = json.load(f, object_hook=lambda d: {k: v for k, v in d.items() if k in ('description_text', 'occupation_group_label', 'Bad_words')})
 
 # Kod för att gömma index kolumnen i tables. Fungerar ej för dataframes i senaste streamlit version
 # CSS to inject contained in a string
@@ -57,7 +57,7 @@ with col3:
     st.write('Vald tidsintervall:', year_interval[0],'-',year_interval[1])
 
     # Selectbox för yrkesroll
-    occupation_group_list = df['occupation_group.label'].unique().tolist()
+    occupation_group_list = df['occupation_group_label'].unique().tolist()
     occupation_group_list.insert(0, 'Alla')
     occupation_group = st.selectbox('Välj yrkesroll:', occupation_group_list, )
 
@@ -68,7 +68,7 @@ with col3:
         occupation_group = [occupation_group]
 
     # Filter appliceras innan datan skickas in i metoder
-    filter = (df['publication_date'] >= year_interval[0]) & (df['publication_date'] <= year_interval[1]) & (df['occupation_group.label'].isin(occupation_group))
+    filter = (df['publication_date'] >= year_interval[0]) & (df['publication_date'] <= year_interval[1]) & (df['occupation_group_label'].isin(occupation_group))
 
      # Filtrerar datasetet enligt interaktiva val i appen
     job_ads = df[filter]

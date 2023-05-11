@@ -19,7 +19,7 @@ def bad_word_count(job_ads):
     # Count occurrences of target words
     word_counts = {}
     for index, ad in job_ads.iterrows():
-        ad_text = ad['description.text'].lower().replace('.', ' ')
+        ad_text = ad['description_text'].lower().replace('.', ' ')
         for target_word in target_words:
             count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
             if target_word in word_counts:
