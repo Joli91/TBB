@@ -2,6 +2,10 @@ import streamlit as st
 import pandas as pd
 import json
 from data_methods import bad_word_count, bad_ads_and_words
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
+import altair as alt
+
 
 
 
@@ -105,9 +109,55 @@ with col2:
 
 st.header('AI analys')
 
+# Visar vanligast förekommande ord i en wordcloud
+wordc = dict(zip(bad_words['Ord'], bad_words['Antal']))
+
+# create a word cloud
+wordcloud = WordCloud(width=500, height=500, background_color='black', colormap='Dark2', stopwords=None, max_words=50).generate_from_frequencies(wordc)
+
+# plot the word cloud
+fig, ax = plt.subplots(figsize=(8, 8))
+ax.imshow(wordcloud, interpolation='bilinear')
+ax.axis('off')
+st.pyplot(fig)
+#######################################################
 
 
+# line chart
+
+# assuming job_ads is a Pandas DataFrame with columns 'publication_date', 'Bad_words', and 'occupation_group.label'
+grouped = job_ads.groupby(['occupation_group.label', 'publication_date']).agg({'Bad_words': 'sum'}).reset_index()
+grouped = grouped.rename(columns={'occupation_group.label': 'occupation_group_label'})
+st.dataframe(grouped)
+
+# create chart using altair
+chart = alt.Chart(grouped).mark_line().encode(
+    x='publication_date:Q',
+    y='Bad_words:Q',
+    # skapar linje efter kolumn
+    color='occupation_group_label:N'
+).properties(
+    width=800,
+    height=400
+)
+
+# display chart using Streamlit
+st.altair_chart(chart, use_container_width=True)
 
 
+# Group the data by occupation_group_label and sum the values in the other columns
+grouped_pie = job_ads.groupby('occupation_group.label').agg({'headline': 'count'})
+grouped_pie = grouped_pie.rename(columns={'occupation_group.label': 'occupation_group_label'})
 
+st.dataframe(grouped_pie)
 
+# Create a pie chart
+fig, ax = plt.subplots()
+grouped_pie.plot(kind='pie', y='headline', legend=False, ax=ax)
+
+# Add title and axis labels
+plt.title('Occupation Groups')
+plt.xlabel('Occupation Group')
+plt.ylabel('Value')
+
+st.pyplot(fig)
