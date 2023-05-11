@@ -122,14 +122,15 @@ def bar_chart_st(job_ads):
     green_ads = 0
 
     for ad in job_ads:
-        if ad['Bad_words'] == 0:
-            green_ads += 1
-        elif ad['Bad_words'] == 1:
-            yellow_ads += 1
-        elif ad['Bad_words'] > 1:
-            red_ads += 1
-        else:
-            continue
+       # if ad['occupation_group.label'] == roll:
+            if ad['Bad_words'] == 0:
+                green_ads += 1
+            elif ad['Bad_words'] == 1:
+                yellow_ads += 1
+            elif ad['Bad_words'] > 1:
+                red_ads += 1
+            else:
+                continue
 
     return green_ads, yellow_ads, red_ads
 
