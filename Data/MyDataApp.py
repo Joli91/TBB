@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
 import json
-from data_methods import bad_word_count, bad_ads_and_words
-
+import matplotlib
+from data_methods import bad_word_count, bad_ads_and_words, bar_chart, bar_chart_st
+import altair as alt
 
 
 # Syftestext input
@@ -43,6 +44,25 @@ st.markdown(f'<span style="word-wrap:break-word;">{syftestext}</span>', unsafe_a
 
 st.divider()
 # Kolumner 
+col1, col2 = st.columns([2,1])
+with col1:
+    st.header('Syfte')
+    # Syftestext
+    st.markdown(f'<span style="word-wrap:break-word;">{syftestext}</span>', unsafe_allow_html=True)
+    # Create the bar chart using the function
+    #fig = bar_chart(job_ads)
+
+   #Visa bar chart via stremlit istället för matplotlib
+    green, yellow, red = bar_chart_st(job_ads)
+    chart_data = pd.DataFrame({'Antal annonser': [green, yellow, red]}, 
+                          index=['Green', 'Yellow', 'Red'])
+    colors = ['#32CD32', '#FFC107', '#FF0000']
+    bars = alt.Chart(chart_data.reset_index()).mark_bar().encode(x='index', y='Antal annonser', color=alt.Color('index', scale=alt.Scale(domain=['Green', 'Yellow', 'Red'], range=colors))).properties(width=400, height=300)
+
+    st.altair_chart(bars)
+
+    # Display the chart in Streamlit
+    #st.pyplot(fig)
 
 col1, col2, col3 = st.columns([1,1,1])
 
@@ -89,6 +109,15 @@ with col1:
     bad_ads = bad_ads_and_words(job_ads)
     st.table(bad_ads)
     ##############################
+    option = st.selectbox('Välj yrkesroll:', occupation_group_list)
+    
+    st.header('Total inom IT')
+    bad_ads = bad_ads_and_words(job_ads)
+    st.table(bad_ads)
+    
+    st.header('Dåliga ord:')
+    bad_words = bad_word_count(option, job_ads)
+    st.table(bad_words)
 
 with col2:
     # Sektion för dåliga ord

@@ -1,6 +1,6 @@
 import re
-import json
 import pandas as pd
+import matplotlib.pyplot as plt
 
 def bad_word_count(job_ads):
     '''Summerar antal dåliga ord i datasetet och skapar en sorterad df med antal förekomster av 
@@ -82,3 +82,63 @@ def bad_ads_and_words(job_ads):
 def filter_years_and_occ_group(df):
     '''funktion för filtrering av data enligt de interaktiva element vi har'''
     return
+
+def bar_chart(job_ads):
+    '''Räknar antal annonser som innehåller dåliga ord, summerar antalet dåliga ord
+    och räknar ut ett genomsnitt på antal dåliga ord per dålig annons samt procentsats'''
+    red_ads = 0
+    yellow_ads = 0
+    green_ads = 0
+    total_bad_words = 0
+
+    for ad in job_ads:
+        if ad['Bad_words'] == 0:
+            green_ads += 1
+        elif ad['Bad_words'] == 1:
+            yellow_ads += 1
+        elif ad['Bad_words'] > 1:
+            red_ads += 1
+        else:
+            continue
+
+    # Count the average amount of bad words for each job ad
+    #average_bad_words = total_bad_words / bad_ads
+    # Count the percentage of bad ads from total ads
+    #percentage_bad_ads = str(int(bad_ads / len(job_ads) * 100)) + '%'
+    
+    # Create a DataFrame from the job ads data
+    data = {'Green': green_ads, 'Yellow': yellow_ads, 'Red': red_ads}
+    df = pd.DataFrame.from_dict(data, orient='index', columns=['Count'])
+
+    colors = ['#008000', '#E0DE1A', '#FF0000']
+
+    # Create a bar chart using matplotlib
+    fig, ax = plt.subplots()
+    ax.bar(df.index, df['Count'], color=colors)
+
+    # Set chart title and axis labels
+    ax.set_title('My Chart')
+    ax.set_xlabel('Grön: 0 - Gul: 1 - Röd: >1')
+    ax.set_ylabel('Antal')
+    
+    return fig
+
+def bar_chart_st(job_ads):
+    red_ads = 0
+    yellow_ads = 0
+    green_ads = 0
+
+    for ad in job_ads:
+       # if ad['occupation_group.label'] == roll:
+            if ad['Bad_words'] == 0:
+                green_ads += 1
+            elif ad['Bad_words'] == 1:
+                yellow_ads += 1
+            elif ad['Bad_words'] > 1:
+                red_ads += 1
+            else:
+                continue
+
+    return green_ads, yellow_ads, red_ads
+
+    
