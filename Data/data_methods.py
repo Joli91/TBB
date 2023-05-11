@@ -77,3 +77,8 @@ def bad_ads_and_words(job_ads):
     return df2
 
     #return average_bad_words, percentage_bad_ads
+
+
+def filter_years_and_occ_group(df):
+    '''funktion för filtrering av data enligt de interaktiva element vi har'''
+    return
