@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import json
 from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st
 import altair as alt
 
@@ -12,12 +11,6 @@ with open('Data/syftestext.txt', 'r', encoding='utf-8') as g:
 # Load data
 df = pd.read_json('Data/Testfil_FINAL.json')
 
-with open('Data/Testfil_FINAL.json', 'r', encoding='utf-8') as f:
-    job_ads = json.load(f)
-
-# Koden nedan hämtar bara 3 variabler från JSON-filen (förhoppningsvis snabbare vid större JSON-fil)
-#with open('Data/Testfil_FINAL.json', 'r', encoding='utf-8') as f:
-#    job_ads = json.load(f, object_hook=lambda d: {k: v for k, v in d.items() if k in ('description_text', 'occupation_group_label', 'Bad_words')})
 
 # Kod för att gömma index kolumnen i tables. Fungerar ej för dataframes i senaste streamlit version
 # CSS to inject contained in a string
@@ -53,7 +46,7 @@ with col3:
     min_value = df['publication_date'].min()
     max_value = df['publication_date'].max()
 
-    year_interval = st.slider('Välj år', min_value=int(min_value), max_value=int(max_value), value=(2016, 2023))
+    year_interval = st.slider('Välj år', min_value=int(min_value), max_value=int(max_value), value=(2016, 2017))
     st.write('Vald tidsintervall:', year_interval[0],'-',year_interval[1])
 
     # Selectbox för yrkesroll
