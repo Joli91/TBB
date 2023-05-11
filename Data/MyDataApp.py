@@ -71,6 +71,14 @@ with col3:
     # Filter appliceras innan datan skickas in i metoder
     filter = (df['publication_date'] >= year_interval[0]) & (df['publication_date'] <= year_interval[1]) & (df['occupation_group.label'].isin(occupation_group))
 
+    
+    
+    
+    
+    
+    
+    
+    # Filtrerar datasetet enligt interaktiva val i appen
     job_ads = df[filter]
     ##############################
 
