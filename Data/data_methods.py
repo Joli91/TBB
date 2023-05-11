@@ -1,6 +1,5 @@
 import re
 import pandas as pd
-import matplotlib.pyplot as plt
 
 def bad_word_count(job_ads):
     '''Summerar antal dåliga ord i datasetet och skapar en sorterad df med antal förekomster av 
@@ -20,7 +19,6 @@ def bad_word_count(job_ads):
     # Count occurrences of target words
     word_counts = {}
     for index, ad in job_ads.iterrows():
-        #if ad['occupation_group.label'] in occupation_group and int(ad['publication_date']) in year_interval:
         ad_text = ad['description.text'].lower().replace('.', ' ')
         for target_word in target_words:
             count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
@@ -63,11 +61,6 @@ def bad_ads_and_words(job_ads):
     # Count the percentage of bad ads from total ads
     percentage_bad_ads = str(int(bad_ads / len(job_ads) * 100)) + '%'
 
-    #print('Amount of bad ads:', percentage_bad_ads, '%')
-    #print('Total amount of bad words in bad ads:', total_bad_words)
-    #print('Total amount of bad ads:', bad_ads)
-    #print("Average bad words per bad ad:", average_bad_words)
-
     # Create a Pandas DataFrame with the results
     df2 = pd.DataFrame({
         "Snitt dåliga ord per annons": [average_bad_words],
@@ -76,22 +69,16 @@ def bad_ads_and_words(job_ads):
 
     return df2
 
-    #return average_bad_words, percentage_bad_ads
-
-
 def filter_years_and_occ_group(df):
     '''funktion för filtrering av data enligt de interaktiva element vi har'''
     return
 
-def bar_chart(job_ads):
-    '''Räknar antal annonser som innehåller dåliga ord, summerar antalet dåliga ord
-    och räknar ut ett genomsnitt på antal dåliga ord per dålig annons samt procentsats'''
+def bar_chart_st(job_ads):
     red_ads = 0
     yellow_ads = 0
     green_ads = 0
-    total_bad_words = 0
 
-    for ad in job_ads:
+    for index, ad in job_ads.iterrows():
         if ad['Bad_words'] == 0:
             green_ads += 1
         elif ad['Bad_words'] == 1:
@@ -100,44 +87,6 @@ def bar_chart(job_ads):
             red_ads += 1
         else:
             continue
-
-    # Count the average amount of bad words for each job ad
-    #average_bad_words = total_bad_words / bad_ads
-    # Count the percentage of bad ads from total ads
-    #percentage_bad_ads = str(int(bad_ads / len(job_ads) * 100)) + '%'
-    
-    # Create a DataFrame from the job ads data
-    data = {'Green': green_ads, 'Yellow': yellow_ads, 'Red': red_ads}
-    df = pd.DataFrame.from_dict(data, orient='index', columns=['Count'])
-
-    colors = ['#008000', '#E0DE1A', '#FF0000']
-
-    # Create a bar chart using matplotlib
-    fig, ax = plt.subplots()
-    ax.bar(df.index, df['Count'], color=colors)
-
-    # Set chart title and axis labels
-    ax.set_title('My Chart')
-    ax.set_xlabel('Grön: 0 - Gul: 1 - Röd: >1')
-    ax.set_ylabel('Antal')
-    
-    return fig
-
-def bar_chart_st(job_ads):
-    red_ads = 0
-    yellow_ads = 0
-    green_ads = 0
-
-    for ad in job_ads:
-       # if ad['occupation_group.label'] == roll:
-            if ad['Bad_words'] == 0:
-                green_ads += 1
-            elif ad['Bad_words'] == 1:
-                yellow_ads += 1
-            elif ad['Bad_words'] > 1:
-                red_ads += 1
-            else:
-                continue
 
     return green_ads, yellow_ads, red_ads
 
