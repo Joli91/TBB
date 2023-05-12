@@ -27,7 +27,7 @@ st.markdown(hide_table_row_index, unsafe_allow_html=True)
 ##############################
 
 # Title
-st.title('The Bouncing Benjamins 🏀')
+st.title('The Benjamins 🏀')
 
 ## Syfte
 st.header('Syfte')
