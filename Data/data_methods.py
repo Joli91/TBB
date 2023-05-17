@@ -209,3 +209,32 @@ def bubble_chart1(job_ads):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+# Function to generate rephrased sentences using ChatGPT
+def generate_rephrased_sentences(sentence, undvik):
+    import openai
+    # Set up OpenAI API credentials
+    openai.api_key = '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'
+
+    ordlista = ['stark','drivkraft','chef', 'analys', 'analytisk', 'driven', 'individer', 'beslut', 'kompetent','självständig']
+
+    response = openai.Completion.create(
+        engine='text-davinci-003',
+        prompt=f"Skriv om följande mening och ersätt ordet {undvik}: '{sentence}'. Undvik även orden {ordlista}",
+        max_tokens=100,
+        temperature=0.7,
+        n=3,  # Generate 3 rephrased sentences
+        stop=None
+    )
+    rephrased_sentences = [choice.text.strip() for choice in response.choices]
+    return rephrased_sentences

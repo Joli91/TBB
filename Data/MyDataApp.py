@@ -122,4 +122,10 @@ st.header('Valt ord: ' + selected_word)
 
 
 
+'''Placeholder kod för att köra chatgpt funktionen
+# Generate rephrased sentences for the variable 'testmening'
+rephrased_sentences = generate_rephrased_sentences(testmening, undvik)
 
+# Print the rephrased sentences
+for i, sentence in enumerate(rephrased_sentences):
+    print(f"Förslag {i+1}: {sentence}")'''
