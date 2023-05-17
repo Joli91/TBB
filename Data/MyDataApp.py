@@ -113,16 +113,10 @@ occupation_group_list_ai.insert(0, 'Alla')
 occupation_group_ai = st.selectbox('Välj yrkesroll:', occupation_group_list_ai, key='occupation_ai' )
 
 # Display the bubble chart using Streamlit
-chart = bubble_chart(job_ads)
+chart, word = bubble_chart(job_ads)
 st.altair_chart(chart, use_container_width=True)
 
-# Call the bubble_chart function with your data
-#chart = bubble_chart(job_ads)
-
-# Display the chart
-#chart.show()
-
-st.header('Valt ord:')
+st.header('Valt ord: ', word)
 
 
 
