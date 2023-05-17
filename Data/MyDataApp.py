@@ -36,11 +36,13 @@ st.markdown(f'<span style="word-wrap:break-word;">{syftestext}</span>', unsafe_a
 
 st.divider()
 # Kolumner    
-col1, col2 = st.columns([1,1])
+outer_col1, outer_col2 = st.columns([1, 1], gap="medium")
+outer_col3, outer_col4 = st.columns([1, 1], gap="medium")
 
 
-with col1:
-
+with outer_col1:
+    #inner_col1, inner_col2 =st.columns(2)
+    
     # Interatkivitet
     # Slider för år
     min_value = df['publication_date'].min()
@@ -49,7 +51,8 @@ with col1:
     year_interval = st.slider('Välj år', min_value=int(min_value), max_value=int(max_value), value=(2016, 2023))
     st.write('Vald tidsintervall:', year_interval[0],'-',year_interval[1])
 
-with col2:
+
+with outer_col2:
     # Selectbox för yrkesroll
     occupation_group_list = df['occupation_group_label'].unique().tolist()
     occupation_group_list.insert(0, 'Alla')
@@ -64,15 +67,12 @@ with col2:
     # Filter appliceras innan datan skickas in i metoder
     filter = (df['publication_date'] >= year_interval[0]) & (df['publication_date'] <= year_interval[1]) & (df['occupation_group_label'].isin(occupation_group))
 
-     # Filtrerar datasetet enligt interaktiva val i appen
+    # Filtrerar datasetet enligt interaktiva val i appen
     job_ads = df[filter]
     ##############################
     
 
-    
-
-
-with col1:
+with outer_col3:
 
     # Sektion för dåliga ord
     st.header('Negativa ord:')
@@ -80,11 +80,8 @@ with col1:
     st.table(bad_words)
     ##############################
 
-
     
-
-    
-with col2:
+with outer_col4:
     # Sektion för Total inom IT    
     st.header('Urval:')
     bad_ads = bad_ads_and_words(job_ads)
@@ -99,8 +96,7 @@ with col2:
     st.altair_chart(bars)
    
 
-    
-
+st.divider()
 
     
 
