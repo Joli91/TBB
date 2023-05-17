@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, bubble_chart
+from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st
 import altair as alt
 
 
@@ -108,14 +108,14 @@ occupation_group_list_ai = df['occupation_group_label'].unique().tolist()
 occupation_group_list_ai.insert(0, 'Alla')
 occupation_group_ai = st.selectbox('Välj yrkesroll:', occupation_group_list_ai, key='occupation_ai' )
 
-# Display the bubble chart using Streamlit
+"""# Display the bubble chart using Streamlit
 chart, selection = bubble_chart(job_ads)
 st.altair_chart(chart, use_container_width=True)
 
 selected_word = selection.name if selection and selection.name != 'SelectedWord' else ''
 
 
-st.header('Valt ord: ' + selected_word)
+st.header('Valt ord: ' + selected_word)"""
 
 # Display the selected word in the header
 #st.header('Valt ord: ', selected_word) # denna fungerar inte och jag fattar verkligen inte varför /Carl
