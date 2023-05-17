@@ -1,5 +1,6 @@
 import re
 import pandas as pd
+import altair as alt
 
 def bad_word_count(job_ads):
     '''Summerar antal dåliga ord i datasetet och skapar en sorterad df med antal förekomster av 
@@ -63,8 +64,8 @@ def bad_ads_and_words(job_ads):
 
     # Create a Pandas DataFrame with the results
     df2 = pd.DataFrame({
-        "Snitt dåliga ord per annons": [average_bad_words],
-        "Andel dåliga annonser": [percentage_bad_ads]
+        "Snitt negativa ord per annons": [average_bad_words],
+        "Andel negativa annonser": [percentage_bad_ads]
     })
 
     return df2
@@ -90,4 +91,83 @@ def bar_chart_st(job_ads):
 
     return green_ads, yellow_ads, red_ads
 
-    
+
+def bubble_chart(job_ads):
+
+    target_words = []
+
+    with open("Data/ordlista.txt", "r", encoding='utf-8') as file:
+        lines = file.readlines()
+
+    for line in lines:
+        words = line.split()
+        for word in words:
+            target_words.append(word)
+
+    # Count occurrences of target words
+    word_counts = {}
+    for index, ad in job_ads.iterrows():
+        ad_text = ad['description_text'].lower().replace('.', ' ')
+        for target_word in target_words:
+            count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
+            if target_word in word_counts:
+                word_counts[target_word] += count
+            else:
+                word_counts[target_word] = count
+
+    # Create a dictionary with the counts of target words
+    target_word_counts = {target_word: count for target_word, count in word_counts.items()}
+
+    # Sort the dictionary by its values in descending order
+    sorted_dict = dict(sorted(target_word_counts.items(), key=lambda x: x[1], reverse=True))
+
+    # Create the DataFrame from the sorted dictionary
+    df = pd.DataFrame(sorted_dict.items(), columns=['X', 'Count'])
+
+    # Create the bubble chart using Altair
+    chart = alt.Chart(df).mark_circle().encode(
+        x=alt.X('X', axis=alt.Axis(title='Target Words')),
+        y='Count',
+        size='Count',
+        color='Count'
+    ).interactive()
+
+    '''df = pd.DataFrame(sorted_dict.items(), columns=['X', 'Count'])
+
+    # Create the bubble chart using Altair
+    bubble_chart = alt.Chart(df).mark_circle().encode(
+        x=alt.X('X:N', axis=alt.Axis(title='Target Words')),
+        y='Count',
+        size='Count',
+        color='Count',
+        tooltip=['X', 'Count', alt.Tooltip('URL', title='Link')],
+        href='URL:N'
+    ).interactive()
+
+    # Add the URLs for each target word
+    df['URL'] = 'https://example.com/' + df['X'].astype(str)
+
+    # Create a selection for the clicked bubble
+    selection = alt.selection_single(empty='none', fields=['X'])
+
+    # Create a text chart for displaying the word connected to the clicked bubble
+    text_chart = alt.Chart().mark_text(align='center', baseline='middle').encode(
+        x=alt.value(0),
+        y=alt.value(0),
+        text=alt.condition(selection, alt.Text('X:N'), alt.value(''))
+    ).transform_calculate(X='datum.word').properties(
+        width=600,
+        height=400
+    )
+
+    # Layer the bubble chart, selection, and text chart
+    chart = alt.layer(bubble_chart, selection, text_chart).properties(
+        height=400)'''
+
+    return chart
+
+
+
+
+
+

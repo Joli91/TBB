@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st
+from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, bubble_chart
 import altair as alt
 
 
@@ -36,19 +36,20 @@ st.markdown(f'<span style="word-wrap:break-word;">{syftestext}</span>', unsafe_a
 
 st.divider()
 # Kolumner    
-col1, col2, col3 = st.columns([1,1,1])
+col1, col2 = st.columns([1,1])
 
 
-with col3:
+with col1:
 
     # Interatkivitet
     # Slider för år
     min_value = df['publication_date'].min()
     max_value = df['publication_date'].max()
 
-    year_interval = st.slider('Välj år', min_value=int(min_value), max_value=int(max_value), value=(2016, 2017))
+    year_interval = st.slider('Välj år', min_value=int(min_value), max_value=int(max_value), value=(2016, 2023))
     st.write('Vald tidsintervall:', year_interval[0],'-',year_interval[1])
 
+with col2:
     # Selectbox för yrkesroll
     occupation_group_list = df['occupation_group_label'].unique().tolist()
     occupation_group_list.insert(0, 'Alla')
@@ -66,28 +67,37 @@ with col3:
      # Filtrerar datasetet enligt interaktiva val i appen
     job_ads = df[filter]
     ##############################
+    
+
+    
+
+
+with col1:
+
+    # Sektion för dåliga ord
+    st.header('Negativa ord:')
+    bad_words = bad_word_count(job_ads)
+    st.table(bad_words)
+    ##############################
+
+
+    
+
+    
+with col2:
+    # Sektion för Total inom IT    
+    st.header('Urval:')
+    bad_ads = bad_ads_and_words(job_ads)
+    st.table(bad_ads)
 
     #Visa bar chart via stremlit istället för matplotlib
     green, yellow, red = bar_chart_st(job_ads)
     chart_data = pd.DataFrame({'Antal annonser': [green, yellow, red]}, index=['Green', 'Yellow', 'Red'])
     colors = ['#32CD32', '#FFC107', '#FF0000']
-    bars = alt.Chart(chart_data.reset_index()).mark_bar().encode(x='index', y='Antal annonser', color=alt.Color('index', scale=alt.Scale(domain=['Green', 'Yellow', 'Red'], range=colors))).properties(width=400, height=300)
+    bars = alt.Chart(chart_data.reset_index()).mark_bar().encode(x='index', y='Antal annonser', color=alt.Color('index', scale=alt.Scale(domain=['Green', 'Yellow', 'Red'], range=colors))).properties(width=400, height=350)
 
     st.altair_chart(bars)
-
-with col1:
-    
-    # Sektion för Total inom IT    
-    st.header('Total inom IT')
-    bad_ads = bad_ads_and_words(job_ads)
-    st.table(bad_ads)
-    
-with col2:
-    # Sektion för dåliga ord
-    st.header('Dåliga ord:')
-    bad_words = bad_word_count(job_ads)
-    st.table(bad_words)
-    ##############################
+   
 
     
 
@@ -97,8 +107,22 @@ with col2:
 
 st.header('AI analys')
 
+#Dropdown 
+occupation_group_list_ai = df['occupation_group_label'].unique().tolist()
+occupation_group_list_ai.insert(0, 'Alla')
+occupation_group_ai = st.selectbox('Välj yrkesroll:', occupation_group_list_ai, key='occupation_ai' )
 
+# Display the bubble chart using Streamlit
+chart = bubble_chart(job_ads)
+st.altair_chart(chart, use_container_width=True)
 
+# Call the bubble_chart function with your data
+#chart = bubble_chart(job_ads)
+
+# Display the chart
+#chart.show()
+
+st.header('Valt ord:')
 
 
 
