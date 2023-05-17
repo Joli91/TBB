@@ -113,10 +113,16 @@ occupation_group_list_ai.insert(0, 'Alla')
 occupation_group_ai = st.selectbox('Välj yrkesroll:', occupation_group_list_ai, key='occupation_ai' )
 
 # Display the bubble chart using Streamlit
-chart, word = bubble_chart(job_ads)
+chart, selection = bubble_chart(job_ads)
 st.altair_chart(chart, use_container_width=True)
 
-st.header('Valt ord: ', word)
+selected_word = selection.name if selection and selection.name != 'SelectedWord' else ''
+
+
+st.header('Valt ord: ' + selected_word)
+
+# Display the selected word in the header
+#st.header('Valt ord: ', selected_word) # denna fungerar inte och jag fattar verkligen inte varför /Carl
 
 
 
