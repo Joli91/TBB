@@ -122,14 +122,16 @@ st.header('Valt ord: ' + selected_word)"""
 
 
 # Visualisera de vanligast förekommande kontexterna för det valda ordet
-st.write('De vanligast förekommande meningarna som innehåller ', selected_word)
-bad_sentences = context_sentence(selected_word)
-for i, sentence in enumerate(bad_sentences, start=1):
-    st.write(f"{i}: {sentence}")    
+st.header('De tre vanligast förekommande meningarna som innehåller ')#, selected_word)
+bad_sentences = context_sentence()#selected_word)
+for i, sentence in enumerate(bad_sentences, start=0):
+    st.write(f"{i+1}: {sentence}")    
+
+
 
 
 # Visualisera omformulerade meningar
-st.write('Förslag på omformulerade meningar som undviker ', selected_word)
+st.header('Förslag på omformulerade meningar som undviker ordet ')#, selected_word)
 
 '''Placeholder kod för att köra chatgpt funktionen
 # Generate rephrased sentences for the variable 'testmening'
