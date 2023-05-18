@@ -130,21 +130,7 @@ def bubble_chart(job_ads):
     merged_df['ScaledSize'] = merged_df['Count'].apply(lambda x: scaling_factor * x if x > avg_count else scaling_factor * avg_count)
 
     # Create bubble chart using Plotly
-    #fig = px.scatter(merged_df, x='Sentiment', y='Count', size='ScaledSize', color='Keyword', hover_data=['Keyword'])
-
-    # Create bubble chart using Plotly
-    fig = px.scatter(
-        merged_df,
-        x='Sentiment',
-        y='Count',
-        size='ScaledSize',
-        color='Keyword',
-        color_continuous_scale=[
-            [0, 'rgb(255, 200, 200)'],  # Light red
-            [1, 'rgb(255, 0, 0)']       # Red
-        ],
-        hover_data=['Keyword']
-    )
+    fig = px.scatter(merged_df, x='Sentiment', y='Count', size='ScaledSize', color='Keyword', hover_data=['Keyword'])
 
     # Update layout
     fig.update_layout(
