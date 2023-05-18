@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, generate_rephrased_sentences
+from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, generate_rephrased_sentences, context_sentence
 import altair as alt
 
 st.set_page_config(layout="wide")
@@ -155,6 +155,17 @@ else:
                     st.markdown(f"<span style='color:green'>{rephrased_sentence}</span>", unsafe_allow_html=True)
     else:
         st.text("No rows found.")
+
+
+# Visualisera de vanligast förekommande kontexterna för det valda ordet
+st.write('De vanligast förekommande meningarna som innehåller ', selected_word)
+bad_sentences = context_sentence(selected_word)
+for i, sentence in enumerate(bad_sentences, start=1):
+    st.write(f"{i}: {sentence}")    
+
+
+# Visualisera omformulerade meningar
+st.write('Förslag på omformulerade meningar som undviker ', selected_word)
 
 # Generate rephrased sentences for the variable 'testmening'
 #rephrased_sentences = generate_rephrased_sentences(testmening, undvik)
