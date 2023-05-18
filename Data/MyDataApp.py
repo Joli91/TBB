@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, generate_rephrased_sentences, context_sentence
+from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, generate_rephrased_sentences
 import altair as alt
 
 st.set_page_config(layout="wide")
@@ -122,6 +122,8 @@ st.header('Valt ord: ' + selected_word)"""
 #st.header('Valt ord: ', selected_word) # denna fungerar inte och jag fattar verkligen inte varför /Carl
 
 
+   
+
 
 #Placeholder kod för att köra chatgpt funktionen
 # Load CSV file into DataFrame
@@ -137,16 +139,18 @@ st.write("Selected keyword:", selected_keyword)
 
 filtered_df_gpt = df_gpt[df_gpt['Keyword'] ==  selected_keyword].reset_index(drop=True)
 
+st.header('De tre vanligast förekommande meningarna som innehåller ' + str(selected_keyword))
+
 if not st.button("Generera omformulerade meningsförslag"):
     for index, row in filtered_df_gpt.iterrows():
-        st.markdown(f"<span style='color:red'>{row['Sentence']}</span>", unsafe_allow_html=True)
+        st.markdown(f"<span style='color:orange'>{index+1}: {row['Sentence']}</span>", unsafe_allow_html=True)
 else:
     if len(filtered_df_gpt) > 0:
         # Get rephrased sentences for all rows
         rephrased_sentences = [generate_rephrased_sentences(row['Sentence'], selected_keyword) for _, row in filtered_df_gpt.iterrows()]
             
         for index, row in filtered_df_gpt.iterrows():
-            st.markdown(f"<span style='color:orange'>{row['Sentence']}</span>", unsafe_allow_html=True)
+            st.markdown(f"<span style='color:orange'>{index+1}: {row['Sentence']}</span>", unsafe_allow_html=True)
 
             # Check if the current row index is within the rephrased sentences range
             if index < len(rephrased_sentences):
@@ -157,17 +161,7 @@ else:
         st.text("No rows found.")
 
 
-# Visualisera de vanligast förekommande kontexterna för det valda ordet
-st.header('De tre vanligast förekommande meningarna som innehåller ')#, selected_word)
-bad_sentences = context_sentence()#selected_word)
-for i, sentence in enumerate(bad_sentences, start=0):
-    st.write(f"{i+1}: {sentence}")    
 
-
-
-
-# Visualisera omformulerade meningar
-st.header('Förslag på omformulerade meningar som undviker ordet ')#, selected_word)
 
 # Generate rephrased sentences for the variable 'testmening'
 #rephrased_sentences = generate_rephrased_sentences(testmening, undvik)
