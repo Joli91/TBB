@@ -100,7 +100,7 @@ def bar_chart_st(job_ads):
 
 def bubble_chart(job_ads):
     # Load keyword and sentiment data from CSV
-    keyword_df = pd.read_csv("Data/keyword_sentence_similarity.csv")
+    keyword_df = pd.read_csv("Data/keyword_sentence_similarity_ny.csv")
 
     # Count occurrences of target words in description_text
     word_counts = {}
@@ -116,11 +116,35 @@ def bubble_chart(job_ads):
     # Create a dataframe with the counts of target words
     df_counts = pd.DataFrame({'Keyword': list(word_counts.keys()), 'Count': list(word_counts.values())})
 
-    # Merge keyword_df with the count dataframe on the 'Keyword' column
+   # Merge keyword_df with the count dataframe on the 'Keyword' column
     merged_df = keyword_df.merge(df_counts, on='Keyword')
+    
+    # Add a flag column to differentiate new keywords
+    merged_df['NewKeyword'] = merged_df['Keyword'].apply(lambda x: 'New' if x in ['initiativförmåga', 'solid', 'inspiration', 'data', 'slutsatser', 'förmåga', 'coach', 'motivation', 'skicklig'] else '')
+
+    # Calculate the average count
+    avg_count = merged_df['Count'].mean()
+
+    # Calculate the scaled size column
+    scaling_factor = 25  # Adjust the scaling factor to control the difference in sizes
+    merged_df['ScaledSize'] = merged_df['Count'].apply(lambda x: scaling_factor * x if x > avg_count else scaling_factor * avg_count)
 
     # Create bubble chart using Plotly
-    fig = px.scatter(merged_df, x='Sentiment', y='Count', size='Count', color='Keyword', hover_data=['Keyword'])
+    #fig = px.scatter(merged_df, x='Sentiment', y='Count', size='ScaledSize', color='Keyword', hover_data=['Keyword'])
+
+    # Create bubble chart using Plotly
+    fig = px.scatter(
+        merged_df,
+        x='Sentiment',
+        y='Count',
+        size='ScaledSize',
+        color='Keyword',
+        color_continuous_scale=[
+            [0, 'rgb(255, 200, 200)'],  # Light red
+            [1, 'rgb(255, 0, 0)']       # Red
+        ],
+        hover_data=['Keyword']
+    )
 
     # Update layout
     fig.update_layout(
