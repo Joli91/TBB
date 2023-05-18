@@ -230,9 +230,9 @@ def generate_rephrased_sentences(sentence, undvik):
 
     response = openai.Completion.create(
         engine='text-davinci-003',
-        prompt=f"Skriv om följande mening och ersätt ordet {undvik}: '{sentence}'. Undvik även orden {ordlista}",
+        prompt=f"Skriv om följande mening och ersätt ordet {undvik}: '{sentence}'. Skriv inte mer än en mening, och du får absolut inte använda orden {ordlista}",
         max_tokens=100,
-        temperature=0.7,
+        temperature=0.9,
         n=3,  # Generate 3 rephrased sentences
         stop=None
     )
