@@ -85,9 +85,13 @@ with outer_col2:
 
     #Visa bar chart via stremlit istället för matplotlib
     green, yellow, red = bar_chart_st(job_ads)
-    chart_data = pd.DataFrame({'Antal annonser': [green, yellow, red]}, index=['Förekommer aldrig', 'Förekommer sällan', 'Förekommer ofta'])
+    chart_data = pd.DataFrame({'Antal annonser': [green, yellow, red]}, index=['Aldrig', 'Sällan', 'Ofta'])
     colors = ['#32CD32', '#FFC107', '#FF0000']
-    bars = alt.Chart(chart_data.reset_index()).mark_bar().encode(x='index', y='Antal annonser', color=alt.Color('index', scale=alt.Scale(domain=['Förekommer aldrig', 'Förekommer sällan', 'Förekommer ofta'], range=colors))).properties(width=400, height=350)
+    
+    bars = alt.Chart(chart_data.reset_index()).mark_bar().encode(
+        x=alt.X('index', title='Ordens förekomst'), y=alt.Y('Antal annonser', title='Antal annonser'), 
+        color=alt.Color('index', title= 'Ordens förekomst', scale=alt.Scale(domain=['Aldrig', 'Sällan', 'Ofta'], range=colors))
+        ).properties(width=400, height=350)
 
     st.altair_chart(bars)
 
