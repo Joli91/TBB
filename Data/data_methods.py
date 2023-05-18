@@ -28,11 +28,9 @@ def bad_word_count(job_ads):
             else:
                 word_counts[target_word] = count
 
-
     # Create a dictionary with the counts of target words
     target_word_counts = {target_word: count for target_word, count in word_counts.items()}
 
-    
     # Sort the dictionary by its values in descending order
     sorted_dict = dict(sorted(target_word_counts.items(), key=lambda x: x[1], reverse=True))
 
@@ -43,6 +41,8 @@ def bad_word_count(job_ads):
     df.set_index('Ord', inplace=True)'''
 
     return df
+
+###########################################################
 
 def bad_ads_and_words(job_ads):
     '''Räknar antal annonser som innehåller dåliga ord, summerar antalet dåliga ord
@@ -70,9 +70,13 @@ def bad_ads_and_words(job_ads):
 
     return df2
 
+###########################################################
+
 def filter_years_and_occ_group(df):
     '''funktion för filtrering av data enligt de interaktiva element vi har'''
     return
+
+###########################################################
 
 def bar_chart_st(job_ads):
     red_ads = 0
@@ -91,6 +95,7 @@ def bar_chart_st(job_ads):
 
     return green_ads, yellow_ads, red_ads
 
+###########################################################
 
 def bubble_chart(job_ads):
 
@@ -142,75 +147,7 @@ def bubble_chart(job_ads):
     # Return the chart and selected word
     return chart.interactive(), selection
 
-
-
-
-
-
-
-
-
-
-
-def bubble_chart1(job_ads):
-    target_words = []
-
-    with open("Data/ordlista.txt", "r", encoding='utf-8') as file:
-        lines = file.readlines()
-
-    for line in lines:
-        words = line.split()
-        for word in words:
-            target_words.append(word)
-
-    # Count occurrences of target words
-    word_counts = {}
-    for index, ad in job_ads.iterrows():
-        ad_text = ad['description_text'].lower().replace('.', ' ')
-        for target_word in target_words:
-            count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
-            if target_word in word_counts:
-                word_counts[target_word] += count
-            else:
-                word_counts[target_word] = count
-
-    # Create a dictionary with the counts of target words
-    target_word_counts = {target_word: count for target_word, count in word_counts.items()}
-
-    # Sort the dictionary by its values in descending order
-    sorted_dict = dict(sorted(target_word_counts.items(), key=lambda x: x[1], reverse=True))
-
-    # Create the DataFrame from the sorted dictionary
-    df = pd.DataFrame(sorted_dict.items(), columns=['X', 'Count'])
-
-    # Create the bubble chart using Altair
-    chart = alt.Chart(df).mark_circle().encode(
-        x=alt.X('X', axis=alt.Axis(title='Target Words')),
-        y='Count',
-        size='Count',
-        color='Count'
-    ).interactive()
-
-    # Make the chart clickable and interactive
-    selection = alt.selection_single(encodings=['color'])
-    chart = chart.add_selection(selection).transform_filter(selection)
-
-    selected_word = str(alt.Chart(df).transform_filter(selection).transform_fold(['X']).transform_aggregate(
-        selected_word='max(X)',
-    ).transform_calculate(
-        selected_word='isValid(datum.selected_word) ? datum.selected_word : ""'
-    ).mark_text().encode(
-        text='selected_word'
-    ))
-    return chart.interactive(), selected_word
-
-
-
-
-
-
-
-
+###########################################################
 
 def context_sentence(): #chosen_word # input till funktionen måste innehålla det valda ordet från bubble chart
     df = pd.read_csv('Data/keyword_sentence_similarity.csv')
@@ -225,15 +162,8 @@ def context_sentence(): #chosen_word # input till funktionen måste innehålla d
             sentences.append(sentence)
     
     return sentences
-        
-        
-            
 
-
-
-
-
-
+###########################################################
 
 # Function to generate rephrased sentences using ChatGPT
 def generate_rephrased_sentences(sentence, undvik):
