@@ -100,6 +100,8 @@ st.divider()
 
 st.header('Dataanalys')
 
+st.write ("Sentiment är en analys som visar negativ, neutral och positiv inverkan på kontexten som ordet befinner i. Där av stärker vi studierna i att visa att dessa ord påverkar arbetsannonsernas uppfattning.")
+
 # Display the bubble chart
 fig = bubble_chart(job_ads)
 st.plotly_chart(fig)
