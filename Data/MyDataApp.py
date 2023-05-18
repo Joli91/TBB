@@ -1,7 +1,8 @@
 import streamlit as st
 import pandas as pd
-from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, generate_rephrased_sentences, context_sentence
+from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, generate_rephrased_sentences, context_sentence, bubble_chart
 import altair as alt
+import plotly.express as px
 
 st.set_page_config(layout="wide")
 
@@ -109,14 +110,11 @@ occupation_group_list_ai = df['occupation_group_label'].unique().tolist()
 occupation_group_list_ai.insert(0, 'Alla')
 occupation_group_ai = st.selectbox('Välj yrkesroll:', occupation_group_list_ai, key='occupation_ai' )
 
-"""# Display the bubble chart using Streamlit
-chart, selection = bubble_chart(job_ads)
-st.altair_chart(chart, use_container_width=True)
+# Display the bubble chart
+fig = bubble_chart(job_ads)
+st.plotly_chart(fig)
 
-selected_word = selection.name if selection and selection.name != 'SelectedWord' else ''
-
-
-st.header('Valt ord: ' + selected_word)"""
+st.header('Valt ord: ')
 
 # Display the selected word in the header
 #st.header('Valt ord: ', selected_word) # denna fungerar inte och jag fattar verkligen inte varför /Carl
