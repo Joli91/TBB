@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
-from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, context_sentence
+from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, generate_rephrased_sentences, context_sentence
 import altair as alt
 
+st.set_page_config(layout="wide")
 
 # Syftestext input
 with open('Data/syftestext.txt', 'r', encoding='utf-8') as g:
@@ -121,6 +122,41 @@ st.header('Valt ord: ' + selected_word)"""
 #st.header('Valt ord: ', selected_word) # denna fungerar inte och jag fattar verkligen inte varför /Carl
 
 
+
+#Placeholder kod för att köra chatgpt funktionen
+# Load CSV file into DataFrame
+df_gpt = pd.read_csv('Data/keyword_sentence_similarity.csv')
+# Get unique values from the "keyword" column
+keywords = df_gpt["Keyword"].unique()
+
+# Create select box
+selected_keyword = st.selectbox("Select a keyword", keywords)
+
+# Display selected keyword
+st.write("Selected keyword:", selected_keyword)
+
+filtered_df_gpt = df_gpt[df_gpt['Keyword'] ==  selected_keyword].reset_index(drop=True)
+
+if not st.button("Generera omformulerade meningsförslag"):
+    for index, row in filtered_df_gpt.iterrows():
+        st.markdown(f"<span style='color:red'>{row['Sentence']}</span>", unsafe_allow_html=True)
+else:
+    if len(filtered_df_gpt) > 0:
+        # Get rephrased sentences for all rows
+        rephrased_sentences = [generate_rephrased_sentences(row['Sentence'], selected_keyword) for _, row in filtered_df_gpt.iterrows()]
+            
+        for index, row in filtered_df_gpt.iterrows():
+            st.markdown(f"<span style='color:orange'>{row['Sentence']}</span>", unsafe_allow_html=True)
+
+            # Check if the current row index is within the rephrased sentences range
+            if index < len(rephrased_sentences):
+                # Iterate over rephrased sentences for the current row
+                for rephrased_sentence in rephrased_sentences[index]:
+                    st.markdown(f"<span style='color:green'>{rephrased_sentence}</span>", unsafe_allow_html=True)
+    else:
+        st.text("No rows found.")
+
+
 # Visualisera de vanligast förekommande kontexterna för det valda ordet
 st.header('De tre vanligast förekommande meningarna som innehåller ')#, selected_word)
 bad_sentences = context_sentence()#selected_word)
@@ -133,10 +169,9 @@ for i, sentence in enumerate(bad_sentences, start=0):
 # Visualisera omformulerade meningar
 st.header('Förslag på omformulerade meningar som undviker ordet ')#, selected_word)
 
-'''Placeholder kod för att köra chatgpt funktionen
 # Generate rephrased sentences for the variable 'testmening'
-rephrased_sentences = generate_rephrased_sentences(testmening, undvik)
+#rephrased_sentences = generate_rephrased_sentences(testmening, undvik)
 
 # Print the rephrased sentences
-for i, sentence in enumerate(rephrased_sentences):
-    print(f"Förslag {i+1}: {sentence}")'''
+#for i, sentence in enumerate(rephrased_sentences):
+#    print(f"Förslag {i+1}: {sentence}")
