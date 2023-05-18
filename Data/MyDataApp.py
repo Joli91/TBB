@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, generate_rephrased_sentences, context_sentence, bubble_chart
+from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, generate_rephrased_sentences, bubble_chart
 import altair as alt
 import plotly.express as px
 
