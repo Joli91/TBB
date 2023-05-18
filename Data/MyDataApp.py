@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st
+from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, context_sentence
 import altair as alt
 
 
@@ -121,6 +121,15 @@ st.header('Valt ord: ' + selected_word)"""
 #st.header('Valt ord: ', selected_word) # denna fungerar inte och jag fattar verkligen inte varför /Carl
 
 
+# Visualisera de vanligast förekommande kontexterna för det valda ordet
+st.write('De vanligast förekommande meningarna som innehåller ', selected_word)
+bad_sentences = context_sentence(selected_word)
+for i, sentence in enumerate(bad_sentences, start=1):
+    st.write(f"{i}: {sentence}")    
+
+
+# Visualisera omformulerade meningar
+st.write('Förslag på omformulerade meningar som undviker ', selected_word)
 
 '''Placeholder kod för att köra chatgpt funktionen
 # Generate rephrased sentences for the variable 'testmening'
