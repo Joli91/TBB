@@ -76,7 +76,7 @@ with outer_col2:
 with outer_col3:
 
     # Sektion för dåliga ord
-    st.header('Negativa ord:')
+    st.header('Missgynnande ord: ')
     bad_words = bad_word_count(job_ads)
     st.table(bad_words)
     ##############################
@@ -90,9 +90,9 @@ with outer_col4:
 
     #Visa bar chart via stremlit istället för matplotlib
     green, yellow, red = bar_chart_st(job_ads)
-    chart_data = pd.DataFrame({'Antal annonser': [green, yellow, red]}, index=['Green', 'Yellow', 'Red'])
+    chart_data = pd.DataFrame({'Antal annonser': [green, yellow, red]}, index=['Förekommer aldrig', 'Förekommer sällan', 'Förekommer ofta'])
     colors = ['#32CD32', '#FFC107', '#FF0000']
-    bars = alt.Chart(chart_data.reset_index()).mark_bar().encode(x='index', y='Antal annonser', color=alt.Color('index', scale=alt.Scale(domain=['Green', 'Yellow', 'Red'], range=colors))).properties(width=400, height=350)
+    bars = alt.Chart(chart_data.reset_index()).mark_bar().encode(x='index', y='Antal annonser', color=alt.Color('index', scale=alt.Scale(domain=['Förekommer aldrig', 'Förekommer sällan', 'Förekommer ofta'], range=colors))).properties(width=400, height=350)
 
     st.altair_chart(bars)
    
@@ -176,7 +176,7 @@ else:
 st.divider()
 
 #Länkar till fornötter från syftestext
-st.write ("Länkar till fotnötter: ")
+st.write ("Länkar till fotnoter: ")
 
 markdown_text = "[¹Streamlit](https://streamlit.io/) [²Github](https://github.com/) [³Negativ](https://www.synonymer.se/sv-syn/negativ)"
 
