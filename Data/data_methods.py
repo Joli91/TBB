@@ -209,7 +209,18 @@ def bubble_chart1(job_ads):
 
 
 
+def context_sentence(chosen_word): # input till funktionen måste innehålla det valda ordet från bubble chart
+    df = pd.read_csv('keyword_sentence_similarity.csv')
+    keywords = df['Keyword']
+    keyword_sentence = df['Sentence']
 
+    chosen_word = 'driven' #Det valda ordet från bubble chart
+    sentences = []
+
+    for keyword, sentence in zip(keywords, keyword_sentence):
+        if chosen_word == keyword:
+            sentences.append(sentence)
+            return sentences
 
 
 
