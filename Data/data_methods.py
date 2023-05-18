@@ -134,22 +134,6 @@ def bubble_chart(job_ads):
 
 ###########################################################
 
-def context_sentence(): #chosen_word # input till funktionen måste innehålla det valda ordet från bubble chart
-    df = pd.read_csv('Data/keyword_sentence_similarity.csv')
-    keywords = df['Keyword']
-    keyword_sentence = df['Sentence']
-
-    chosen_word = 'stark' #chosen_word #Det valda ordet från bubble chart
-    sentences = []
-
-    for keyword, sentence in zip(keywords, keyword_sentence):
-        if chosen_word == keyword:
-            sentences.append(sentence)
-    
-    return sentences
-
-###########################################################
-
 # Function to generate rephrased sentences using ChatGPT
 def generate_rephrased_sentences(sentence, undvik):
     import openai

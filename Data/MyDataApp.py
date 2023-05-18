@@ -77,7 +77,7 @@ with outer_col2:
 with outer_col3:
 
     # Sektion för dåliga ord
-    st.header('Negativa ord:')
+    st.header('Missgynnande ord: ')
     bad_words = bad_word_count(job_ads)
     st.table(bad_words)
     ##############################
@@ -91,9 +91,9 @@ with outer_col4:
 
     #Visa bar chart via stremlit istället för matplotlib
     green, yellow, red = bar_chart_st(job_ads)
-    chart_data = pd.DataFrame({'Antal annonser': [green, yellow, red]}, index=['Green', 'Yellow', 'Red'])
+    chart_data = pd.DataFrame({'Antal annonser': [green, yellow, red]}, index=['Förekommer aldrig', 'Förekommer sällan', 'Förekommer ofta'])
     colors = ['#32CD32', '#FFC107', '#FF0000']
-    bars = alt.Chart(chart_data.reset_index()).mark_bar().encode(x='index', y='Antal annonser', color=alt.Color('index', scale=alt.Scale(domain=['Green', 'Yellow', 'Red'], range=colors))).properties(width=400, height=350)
+    bars = alt.Chart(chart_data.reset_index()).mark_bar().encode(x='index', y='Antal annonser', color=alt.Color('index', scale=alt.Scale(domain=['Förekommer aldrig', 'Förekommer sällan', 'Förekommer ofta'], range=colors))).properties(width=400, height=350)
 
     st.altair_chart(bars)
    
@@ -120,6 +120,8 @@ st.header('Valt ord: ')
 #st.header('Valt ord: ', selected_word) # denna fungerar inte och jag fattar verkligen inte varför /Carl
 
 
+   
+
 
 #Placeholder kod för att köra chatgpt funktionen
 # Load CSV file into DataFrame
@@ -135,16 +137,18 @@ st.write("Selected keyword:", selected_keyword)
 
 filtered_df_gpt = df_gpt[df_gpt['Keyword'] ==  selected_keyword].reset_index(drop=True)
 
+st.header('De tre vanligast förekommande meningarna som innehåller ' + str(selected_keyword))
+
 if not st.button("Generera omformulerade meningsförslag"):
     for index, row in filtered_df_gpt.iterrows():
-        st.markdown(f"<span style='color:red'>{row['Sentence']}</span>", unsafe_allow_html=True)
+        st.markdown(f"<span style='color:orange'>{index+1}: {row['Sentence']}</span>", unsafe_allow_html=True)
 else:
     if len(filtered_df_gpt) > 0:
         # Get rephrased sentences for all rows
         rephrased_sentences = [generate_rephrased_sentences(row['Sentence'], selected_keyword) for _, row in filtered_df_gpt.iterrows()]
             
         for index, row in filtered_df_gpt.iterrows():
-            st.markdown(f"<span style='color:orange'>{row['Sentence']}</span>", unsafe_allow_html=True)
+            st.markdown(f"<span style='color:orange'>{index+1}: {row['Sentence']}</span>", unsafe_allow_html=True)
 
             # Check if the current row index is within the rephrased sentences range
             if index < len(rephrased_sentences):
@@ -155,17 +159,7 @@ else:
         st.text("No rows found.")
 
 
-# Visualisera de vanligast förekommande kontexterna för det valda ordet
-st.header('De tre vanligast förekommande meningarna som innehåller ')#, selected_word)
-bad_sentences = context_sentence()#selected_word)
-for i, sentence in enumerate(bad_sentences, start=0):
-    st.write(f"{i+1}: {sentence}")    
 
-
-
-
-# Visualisera omformulerade meningar
-st.header('Förslag på omformulerade meningar som undviker ordet ')#, selected_word)
 
 # Generate rephrased sentences for the variable 'testmening'
 #rephrased_sentences = generate_rephrased_sentences(testmening, undvik)
@@ -173,3 +167,15 @@ st.header('Förslag på omformulerade meningar som undviker ordet ')#, selected_
 # Print the rephrased sentences
 #for i, sentence in enumerate(rephrased_sentences):
 #    print(f"Förslag {i+1}: {sentence}")
+
+
+######################################
+
+st.divider()
+
+#Länkar till fornötter från syftestext
+st.write ("Länkar till fotnoter: ")
+
+markdown_text = "[¹Streamlit](https://streamlit.io/) [²Github](https://github.com/) [³Negativ](https://www.synonymer.se/sv-syn/negativ)"
+
+st.markdown(markdown_text)
