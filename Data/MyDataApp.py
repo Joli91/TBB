@@ -175,3 +175,15 @@ st.header('Förslag på omformulerade meningar som undviker ordet ')#, selected_
 # Print the rephrased sentences
 #for i, sentence in enumerate(rephrased_sentences):
 #    print(f"Förslag {i+1}: {sentence}")
+
+
+######################################
+
+st.divider()
+
+#Länkar till fornötter från syftestext
+st.write ("Länkar till fotnötter: ")
+
+markdown_text = "[¹Streamlit](https://streamlit.io/) [²Github](https://github.com/) [³Negativ](https://www.synonymer.se/sv-syn/negativ)"
+
+st.markdown(markdown_text)
