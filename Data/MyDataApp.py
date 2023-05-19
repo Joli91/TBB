@@ -64,6 +64,23 @@ with st.sidebar:
 
     # Filtrerar datasetet enligt interaktiva val i appen
     job_ads = df[filter]
+
+    st.divider()
+
+    #Tom text för att flytta ner fotnoter
+    st.title('')
+    st.title('')
+    st.title('')
+    st.title('')
+    st.title('')
+    st.title('')
+    st.title('')
+    st.title('')
+    #Länkar till fornötter från syftestext
+    st.write ("Länkar till fotnoter: ")
+    markdown_text = "[¹JobTech](https://jobtechdev.se/sv) [²Gaucher,Friesen,Kay-2011](https://ideas.wharton.upenn.edu/wp-content/uploads/2018/07/Gaucher-Friesen-Kay-2011.pdf?fbclid=IwAR0JFSPgZP3olTZG5d-_B4KvOI5msLjxaE9wH_fiKY8nQHtXlVNRzh940DE) [³Tietoevry](https://www.tietoevry.com/se/nyhetsrum/alla-nyheter-och-pressmeddelanden/pressmeddelande/2021/06/ordval-i-jobbannonser-star-i-vagen-for-kvinnor-i-it-branschen--sa-okade-tietoevry-antalet-kvinnliga-sokanden/?fbclid=IwAR0wdO3vI1KfTr7aqq7-7p3QhiW4UkSbszoUBWqEexzMwmtK43SgL0KMCOY)"
+    st.markdown(markdown_text)
+
     ##############################
     
 st.header('Överblick')
@@ -140,10 +157,3 @@ else:
 
 ######################################
 st.divider()
-
-#Länkar till fornötter från syftestext
-st.write ("Länkar till fotnoter: ")
-
-markdown_text = "[¹JobTech](https://jobtechdev.se/sv) [²Gaucher,Friesen,Kay-2011](https://ideas.wharton.upenn.edu/wp-content/uploads/2018/07/Gaucher-Friesen-Kay-2011.pdf?fbclid=IwAR0JFSPgZP3olTZG5d-_B4KvOI5msLjxaE9wH_fiKY8nQHtXlVNRzh940DE) [³Tietoevry](https://www.tietoevry.com/se/nyhetsrum/alla-nyheter-och-pressmeddelanden/pressmeddelande/2021/06/ordval-i-jobbannonser-star-i-vagen-for-kvinnor-i-it-branschen--sa-okade-tietoevry-antalet-kvinnliga-sokanden/?fbclid=IwAR0wdO3vI1KfTr7aqq7-7p3QhiW4UkSbszoUBWqEexzMwmtK43SgL0KMCOY)"
-
-st.markdown(markdown_text)
