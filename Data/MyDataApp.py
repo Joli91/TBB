@@ -99,7 +99,7 @@ with outer_col2:
     st.subheader('Urval:')
     bad_ads = bad_ads_and_words(job_ads)
     st.table(bad_ads)
-
+    gammal_bar_chart_placeholder = ('''
     #Visa bar chart via stremlit istället för matplotlib
     green, yellow, red = bar_chart_st(job_ads)
     chart_data = pd.DataFrame({'Antal annonser': [green, yellow, red]}, index=['Aldrig', 'Sällan', 'Ofta'])
@@ -110,7 +110,8 @@ with outer_col2:
         color=alt.Color('index', title= 'Ordens förekomst', scale=alt.Scale(domain=['Aldrig', 'Sällan', 'Ofta'], range=colors))
         ).properties(width=400, height=350)
 
-    st.altair_chart(bars)
+    st.altair_chart(bars)''')
+    
 
     ## Stackad bar chart grön gul röd
 
@@ -138,15 +139,35 @@ with outer_col2:
     # Concatenate the total DataFrame with the original DataFrame
     df_combined = pd.concat([df, df_total])
 
-
+    
+    legend_values = ['green', 'yellow', 'red']
     # Sort the DataFrame by the percentage of green bars in descending order
     df_combined = df_combined.sort_values(by='color', ascending=False)
 
-    chart = alt.Chart(df_combined).mark_bar().encode(
+    chart1 = alt.Chart(df_combined).mark_bar().encode( #Chart 1 endast för att visa customizable legend
         y=alt.Y('occupation_group_label', sort=alt.EncodingSortField(field='color', op='count', order='descending'), axis=alt.Axis(title='Yrkesgrupp')),
         x=alt.X('count(Row_count)',stack='normalize', axis=alt.Axis(format='%', title='Andel')),
-        color=alt.Color('color', scale=None, sort=['yellow', 'red', 'green']), #sorterar ordningen på färgerna (fungerar ej atm)
-        # tooltip placeholder. Fungerar inte med procentandel atm
+        color=alt.Color('color',
+            scale=alt.Scale(domain=['Aldrig     0', 'Sällan    1', 'Ofta      >1'],
+                range=['Green', 'Yellow', 'Red']),
+            sort=['yellow', 'red', 'green'],
+            legend=alt.Legend(title='Förekomst per annons', labelFontSize=12, titleFontSize=14, symbolType='square', symbolSize=300))  # Set custom color scale and legend
+
+
+         # tooltip placeholder. Fungerar inte med procentandel atm
+        #tooltip=[
+        #    alt.Tooltip('occupation_group_label', title='Ykesgrupp'),
+        #    alt.Tooltip('count(Row_count)', title='Andel', format='.2%'),
+        #    alt.Tooltip('color', title='Förekomst')
+        #]
+        ).properties(height=400, title='Ordens förekomst').interactive()
+
+    chart2 = alt.Chart(df_combined).mark_bar().encode(
+        y=alt.Y('occupation_group_label', sort=alt.EncodingSortField(field='color', op='count', order='descending'), axis=alt.Axis(title='Yrkesgrupp')),
+        x=alt.X('count(Row_count)',stack='normalize', axis=alt.Axis(format='%', title='Andel')),
+        color=alt.Color('color',
+            scale=None)
+         # tooltip placeholder. Fungerar inte med procentandel atm
         #tooltip=[
         #    alt.Tooltip('occupation_group_label', title='Ykesgrupp'),
         #    alt.Tooltip('count(Row_count)', title='Andel', format='.2%'),
@@ -155,8 +176,9 @@ with outer_col2:
         ).properties(height=400, title='Ordens förekomst').interactive()
 
 
+    combined_chart = chart1 + chart2
     # Display the chart
-    st.altair_chart(chart, use_container_width=True)
+    st.altair_chart(combined_chart, use_container_width=True)
 
 st.divider()
 ##########################
