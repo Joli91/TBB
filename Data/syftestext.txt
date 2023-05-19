@@ -2,6 +2,6 @@ Studien som verktyget är framtaget ur kartlägger stora mångfalds- och jämst�
 
 Verktyget visualiserar data från ett öppet dataset, tillgängliggjort av JobTech¹, angående arbetsannonser under perioden 2016-2023. Genom (vilken metod vi använt oss av, NLP, Klustring osv) analyserar verktyget användningen av särskilda ord i annonserna. De valda orden är enligt studier² definierade att negativt påverka i vilken utsträckning kvinnor söker jobb, beroende på ordens förekomst i annonsen. 
 
-Syftet med verktyget är att sprida kunskap samt skapa medvetenhet kring hur man som arbetsgivare kan anpassa formuleringen av sina arbetsannonser. Genom att undvika användningen av de negativa orden i arbetsannonser har tester³ visat att företag kan öka ansökande kvinnor med 32%.
+Syftet med verktyget är att sprida kunskap samt skapa medvetenhet kring hur man som arbetsgivare kan anpassa formuleringen av sina arbetsannonser. Genom att undvika användningen av de missgynnande orden i arbetsannonser har tester³ visat att företag kan öka ansökande kvinnor med 32%.
 
 Vår förhoppning är att detta verktyg ska underlätta för rekryterare och de som skriver arbetsannonser att locka till sig fler kvinnor till IT-branschen. Detta för bidra till att skapa en mer jämställd och mångfaldig bransch.
