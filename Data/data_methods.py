@@ -2,6 +2,7 @@ import re
 import pandas as pd
 import altair as alt
 import plotly.express as px
+import plotly
 
 def bad_word_count(job_ads):
     '''Summerar antal dåliga ord i datasetet och skapar en sorterad df med antal förekomster av 
