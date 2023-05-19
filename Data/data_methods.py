@@ -134,8 +134,6 @@ def bubble_chart(job_ads):
     fig.update_layout(
         xaxis=dict(title='Sentiment'),
         yaxis=dict(title='Antal'),
-        width=800,
-        height=600,
     )
 
     return fig
