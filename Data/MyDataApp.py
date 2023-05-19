@@ -112,6 +112,46 @@ with outer_col2:
 
     st.altair_chart(bars)
 
+    ## Stackad bar chart grön gul röd
+
+        # Custom color mapping function
+    def get_color(value):
+        if value == 0:
+            return 'green'
+        elif value == 1:
+            return 'yellow'
+        elif value > 1:
+            return 'red'
+
+    # Apply color mapping function to create a new 'color' column
+    df['color'] = df['Bad_words'].apply(get_color)
+
+    # Calculate the count of rows with bad words
+    df['Row_count'] = df['Bad_words'].apply(lambda x: 1 if x > 0 else 0)
+
+    # Clone the DataFrame and select specific columns
+    df_total = df[['Bad_words', 'color', 'Row_count']].copy() 
+
+    # Replace values in the 'occupation_group_label' column with 'Total'
+    df_total['occupation_group_label'] = 'Totalt'
+
+    # Concatenate the total DataFrame with the original DataFrame
+    df_combined = pd.concat([df, df_total])
+
+    # Sort the DataFrame by the percentage of green bars in descending order
+    df_combined = df_combined.sort_values(by='color', ascending=False)
+
+    chart = alt.Chart(df_combined).mark_bar().encode(
+        y=alt.Y('occupation_group_label', sort=alt.EncodingSortField(field='color', op='count', order='descending'), axis=alt.Axis(title='Yrkesgrupp')),
+        x=alt.X('count(Row_count)',stack='normalize', axis=alt.Axis(format='%', title='Andel')),
+        color=alt.Color('color', scale=None, sort=['yellow', 'red', 'green']), #sorterar ordningen på färgerna (fungerar ej atm)
+
+        ).properties(height=400, title='Ordens förekomst').interactive()
+
+
+    # Display the chart
+    st.altair_chart(chart, use_container_width=True)
+
 st.divider()
 ##########################
 
