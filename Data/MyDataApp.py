@@ -138,6 +138,7 @@ with outer_col2:
     # Concatenate the total DataFrame with the original DataFrame
     df_combined = pd.concat([df, df_total])
 
+
     # Sort the DataFrame by the percentage of green bars in descending order
     df_combined = df_combined.sort_values(by='color', ascending=False)
 
@@ -145,7 +146,12 @@ with outer_col2:
         y=alt.Y('occupation_group_label', sort=alt.EncodingSortField(field='color', op='count', order='descending'), axis=alt.Axis(title='Yrkesgrupp')),
         x=alt.X('count(Row_count)',stack='normalize', axis=alt.Axis(format='%', title='Andel')),
         color=alt.Color('color', scale=None, sort=['yellow', 'red', 'green']), #sorterar ordningen på färgerna (fungerar ej atm)
-
+        # tooltip placeholder. Fungerar inte med procentandel atm
+        #tooltip=[
+        #    alt.Tooltip('occupation_group_label', title='Ykesgrupp'),
+        #    alt.Tooltip('count(Row_count)', title='Andel', format='.2%'),
+        #    alt.Tooltip('color', title='Förekomst')
+        #]
         ).properties(height=400, title='Ordens förekomst').interactive()
 
 
