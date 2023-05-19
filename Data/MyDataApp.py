@@ -152,14 +152,6 @@ with outer_col2:
                 range=['Green', 'Yellow', 'Red']),
             sort=['yellow', 'red', 'green'],
             legend=alt.Legend(title='Förekomst per annons', labelFontSize=12, titleFontSize=14, symbolType='square', symbolSize=300))  # Set custom color scale and legend
-
-
-         # tooltip placeholder. Fungerar inte med procentandel atm
-        #tooltip=[
-        #    alt.Tooltip('occupation_group_label', title='Ykesgrupp'),
-        #    alt.Tooltip('count(Row_count)', title='Andel', format='.2%'),
-        #    alt.Tooltip('color', title='Förekomst')
-        #]
         ).properties(height=400, title='Ordens förekomst').interactive()
 
     chart2 = alt.Chart(df_combined).mark_bar().encode(
@@ -175,8 +167,9 @@ with outer_col2:
         #]
         ).properties(height=400, title='Ordens förekomst').interactive()
 
-
+    # Layera charts
     combined_chart = chart1 + chart2
+    
     # Display the chart
     st.altair_chart(combined_chart, use_container_width=True)
 
