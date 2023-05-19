@@ -224,19 +224,19 @@ with outer_col2:
             return 'red'
 
     # Apply color mapping function to create a new 'color' column
-    df['color'] = df['Bad_words'].apply(get_color)
+    job_ads['color'] = job_ads['Bad_words'].apply(get_color)
 
     # Calculate the count of rows with bad words
-    df['Row_count'] = df['Bad_words'].apply(lambda x: 1 if x > 0 else 0)
+    job_ads['Row_count'] = job_ads['Bad_words'].apply(lambda x: 1 if x > 0 else 0)
 
     # Clone the DataFrame and select specific columns
-    df_total = df[['Bad_words', 'color', 'Row_count']].copy() 
+    df_total = job_ads[['Bad_words', 'color', 'Row_count']].copy() 
 
     # Replace values in the 'occupation_group_label' column with 'Total'
     df_total['occupation_group_label'] = 'Totalt'
 
     # Concatenate the total DataFrame with the original DataFrame
-    df_combined = pd.concat([df, df_total])
+    df_combined = pd.concat([job_ads, df_total])
 
     
     legend_values = ['green', 'yellow', 'red']
