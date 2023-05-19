@@ -44,6 +44,32 @@ def bad_word_count(job_ads):
 
     return df
 
+def bad_word_count2(job_ads):
+    target_words = []
+
+    with open("Data/ordlista.txt", "r", encoding='utf-8') as file:
+        lines = file.readlines()
+
+    for line in lines:
+        words = line.split()
+        for word in words:
+            target_words.append(word)
+
+    word_counts = {}
+    for index, ad in job_ads.iterrows():
+        ad_text = ad['description_text'].lower().replace('.', ' ')
+        for target_word in target_words:
+            count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
+            if target_word in word_counts:
+                word_counts[target_word].append(count)
+            else:
+                word_counts[target_word] = [count]
+
+    for target_word, counts in word_counts.items():
+        job_ads[target_word] = counts
+
+    return job_ads
+
 ###########################################################
 
 def bad_ads_and_words(job_ads):
