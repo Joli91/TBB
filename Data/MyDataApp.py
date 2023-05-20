@@ -157,6 +157,11 @@ with outer_col2:
                 return 'yellow'
             elif value > 1:
                 return 'red'
+            
+        # Define custom color schemes
+        red_color = "#8B0000"  # Dark red
+        yellow_color = "#8B8B00"  # Dark yellow
+        green_color = "#006400"  # Pleasing green
 
         # Apply color mapping function to create a new 'color' column
         job_ads['color'] = job_ads['Bad_words'].apply(get_color)
@@ -178,7 +183,20 @@ with outer_col2:
         # Sort the DataFrame by the percentage of green bars in descending order
         df_combined = df_combined.sort_values(by='color', ascending=False)
 
-        chart1 = alt.Chart(df_combined).mark_bar().encode( #Chart 1 endast för att visa customizable legend
+
+        # Calculate the percentage of greens relative to reds and yellows within each occupation_group_label
+        df_combined['green_percentage'] = df_combined.groupby('occupation_group_label')['color'].transform(
+            lambda x: (x == 'green').mean())
+
+        # Sort the DataFrame based on the green_percentage in descending order
+        df_sorted = df_combined.sort_values(by='green_percentage', ascending=True)
+
+        # Extract the list of values in the occupation_group_label column
+        occupation_group_labels = df_sorted['occupation_group_label'].unique().tolist()
+
+
+        #Chart 1 endast för att visa customizable legend
+        chart1 = alt.Chart(df_combined).mark_bar().encode( 
             y=alt.Y('occupation_group_label', sort=alt.EncodingSortField(field='color', op='count', order='descending'), axis=alt.Axis(title='Yrkesgrupp')),
             x=alt.X('count(Row_count)',stack='normalize', axis=alt.Axis(format='%', title='Andel')),
             color=alt.Color('color',
@@ -188,21 +206,38 @@ with outer_col2:
                 legend=alt.Legend(title='Förekomst per annons', labelFontSize=12, titleFontSize=14, symbolType='square', symbolSize=300))  # Set custom color scale and legend
             ).properties(height=400, title='Ordens förekomst').interactive()
 
-        chart2 = alt.Chart(df_combined).mark_bar().encode(
-            y=alt.Y('occupation_group_label', sort=alt.EncodingSortField(field='color', op='count', order='descending'), axis=alt.Axis(title='Yrkesgrupp')),
-            x=alt.X('count(Row_count)',stack='normalize', axis=alt.Axis(format='%', title='Andel')),
-            color=alt.Color('color',
-                scale=None)
+
+        # Define the desired order of colors
+        color_order = ['green', 'yellow', 'red']  # sets color of bars
+        bar_order = ['red', 'yellow', 'green'] # sätter ordning på färger i bars. Är av någon anledning reversed.
+
+
+        # Chart 2 visar faktisk data
+        chart2 = alt.Chart(df_combined).transform_calculate(
+            order=f"-indexof({bar_order}, datum.color)"
+        ).mark_bar().encode(
+            y=alt.Y('occupation_group_label', 
+                    sort=occupation_group_labels , # sorterar y axeln på count av ordens förekomst
+                    axis=alt.Axis(title='Yrkesgrupp')),
+            x=alt.X('count(Row_count)', stack='normalize', axis=alt.Axis(format='%', title='Andel')),
+            color=alt.Color('color', 
+                            scale=alt.Scale(domain=color_order, 
+                            range=[green_color, yellow_color, red_color]),
+                            sort=bar_order),
+                            order="order:Q"
+
+
             # tooltip placeholder. Fungerar inte med procentandel atm
-            #tooltip=[
-            #    alt.Tooltip('occupation_group_label', title='Ykesgrupp'),
-            #    alt.Tooltip('count(Row_count)', title='Andel', format='.2%'),
-            #    alt.Tooltip('color', title='Förekomst')
-            #]
-            ).properties(height=400, title='Ordens förekomst').interactive()
+            # tooltip=[
+            #     alt.Tooltip('occupation_group_label', title='Ykesgrupp'),
+            #     alt.Tooltip('count(Row_count)', title='Andel', format='.2%'),
+            #     alt.Tooltip('color', title='Förekomst')
+            # ]
+        ).properties(height=400, title='Ordens förekomst').interactive()
 
         # Layera charts
-        combined_chart = chart1 + chart2
+        #combined_chart = chart1 + chart2
+        combined_chart = chart2
 
         return combined_chart
     
