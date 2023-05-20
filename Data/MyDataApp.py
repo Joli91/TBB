@@ -1,9 +1,14 @@
 import streamlit as st
 import pandas as pd
-from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, generate_rephrased_sentences, bubble_chart, bad_word_count2
+from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, generate_rephrased_sentences, bubble_chart, bad_word_count2, create_treemap
 import altair as alt
 import plotly.express as px
 import re
+import squarify
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import seaborn as sb
+from wordcloud import WordCloud
 
 st.set_page_config(layout="wide")
 
@@ -26,6 +31,8 @@ hide_table_row_index = """
 
 # Inject CSS with Markdown
 st.markdown(hide_table_row_index, unsafe_allow_html=True)
+
+
 
 ##############################
 
@@ -65,6 +72,8 @@ with st.sidebar:
 
     # Filtrerar datasetet enligt interaktiva val i appen
     job_ads = df[filter]
+    #count av missgynnande ord returnerar df 
+    bad_words = bad_word_count(job_ads)
 
     st.divider()
 
@@ -91,11 +100,49 @@ outer_col1, outer_col2 = st.columns([1, 1], gap="medium")
 with outer_col1:
     # Sektion för dåliga ord
     st.subheader('Missgynnande ord: ')
-    bad_words = bad_word_count(job_ads)
-    st.dataframe(bad_words)
+
+    # Wordcloud 
+    def create_wordcloud(data):
+        # Combine all words into a single string
+        words = ' '.join(data['Ord'])
+
+        # Create a word cloud object with custom attributes
+        wordcloud = WordCloud(
+            width=800,
+            height=400,
+            background_color=None,
+            mode='RGBA',
+            colormap='Spectral',
+            max_words=100,
+            max_font_size=150
+        )
+
+        # Generate the word cloud
+        wordcloud.generate(words)
+
+        # Display the word cloud using matplotlib
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.imshow(wordcloud, interpolation='bilinear')
+        ax.axis('off')
+        #ax.set_title('Word Cloud') # titeltext för wordcloud
+
+        fig.set_frameon(False)
+
+        # Display the plot within Streamlit
+        st.pyplot(fig)
+
+    # Call the function to create the word cloud
+    create_wordcloud(bad_words)
+
+
+    ## Gamla dataframe som innehåller count av missgynnande ord
+    #st.dataframe(bad_words)
+
+    
+    treemap_fig = create_treemap(bad_words) # kallar treemap metoden
+    st.pyplot(treemap_fig) # plot treemap
 
     bad_words2 = bad_word_count2(job_ads)
-    st.dataframe(bad_words2)
 
     ######################################
     ######## BAR CHART FOR BAD WORDS########
@@ -146,49 +193,7 @@ with outer_col1:
     st.altair_chart(bad_words_bar_chart, use_container_width=True)
 
     ##############################
-    ###### LINE CHART#############
-    def line_chart_func(job_ads):
-        target_words = []
-
-        with open("Data/ordlista.txt", "r", encoding='utf-8') as file:
-            lines = file.readlines()
-
-        for line in lines:
-            words = line.split()
-            for word in words:
-                target_words.append(word)
-
-        word_counts = {}
-        for index, ad in job_ads.iterrows():
-            ad_text = ad['description_text'].lower().replace('.', ' ')
-            for target_word in target_words:
-                count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
-                if target_word in word_counts:
-                    word_counts[target_word].append(count)
-                else:
-                    word_counts[target_word] = [count]
-
-        for target_word, counts in word_counts.items():
-            job_ads[target_word] = counts
-
-        # Melt the DataFrame to convert it to long format
-        melted_df = pd.melt(job_ads, id_vars=['publication_date', 'occupation_group_label'], value_vars=target_words, var_name='Word', value_name='Count')
-        summed_df = melted_df.groupby(['publication_date', 'occupation_group_label', 'Word']).sum().reset_index()
-
-        # Create the Altair line chart
-        chart = alt.Chart(summed_df).mark_line().encode(
-            x='publication_date:T',
-            y='sum(Count):Q',
-            color='Word:N',
-            detail='occupation_group_label:N'
-        ).properties(
-            width=600
-        )
-
-        return chart
-
-    line_chart = line_chart_func(job_ads)
-    st.altair_chart(line_chart, use_container_width=True)
+ 
     
 
     ##############################
@@ -272,6 +277,47 @@ with outer_col2:
     # Display the chart
     st.altair_chart(combined_chart, use_container_width=True)
 
+   ###### LINE CHART#############
+
+def line_chart_func(job_ads):
+    target_words = []
+    with open("Data/ordlista.txt", "r", encoding='utf-8') as file:
+        lines = file.readlines()
+    for line in lines:
+        words = line.split()
+        for word in words:
+            target_words.append(word)
+    word_counts = {}
+    for index, ad in job_ads.iterrows():
+        ad_text = ad['description_text'].lower().replace('.', ' ')
+        for target_word in target_words:
+            count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
+            if target_word in word_counts:
+                word_counts[target_word].append(count)
+            else:
+                word_counts[target_word] = [count]
+    for target_word, counts in word_counts.items():
+        job_ads[target_word] = counts
+    # Convert the 'publication_date' column to datetime
+    job_ads['publication_date'] = pd.to_datetime(job_ads['publication_date'], format='%Y')
+    # Melt the DataFrame to convert it to long format
+    melted_df = pd.melt(job_ads, id_vars=['publication_date'], value_vars=target_words, var_name='Word', value_name='Count')
+    summed_df = melted_df.groupby(['publication_date', 'Word']).sum().reset_index()
+    # Create the Altair line chart
+    chart = alt.Chart(summed_df).mark_line().encode(
+        x=alt.X('year(publication_date):O', axis=alt.Axis(format='%Y', title='Publication Year')),
+        y=alt.Y('sum(Count):Q', title='Count'),
+        color='Word:N'
+    ).properties(
+        width=600
+    )
+    return chart
+
+st.divider()
+##### Visa line chart
+line_chart = line_chart_func(job_ads)
+st.altair_chart(line_chart, use_container_width=True)
+##########################
 st.divider()
 ##########################
 

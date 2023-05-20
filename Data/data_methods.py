@@ -3,6 +3,10 @@ import pandas as pd
 import altair as alt
 import plotly.express as px
 import plotly
+import squarify
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import seaborn as sb
 
 def bad_word_count(job_ads):
     '''Summerar antal dåliga ord i datasetet och skapar en sorterad df med antal förekomster av 
@@ -184,3 +188,23 @@ def generate_rephrased_sentences(sentence, undvik):
     )
     rephrased_sentences = [choice.text.strip() for choice in response.choices]
     return rephrased_sentences
+
+###################################################
+def create_treemap(data):
+    '''skapar treemap baserat på bad_words df'''
+    # Sort the dataset by Count in descending order
+    data = data.sort_values(by='Antal', ascending=False)
+    # Generate the treemap
+    fig, ax = plt.subplots(figsize=(10, 8))
+    squarify.plot(
+        sizes=data['Antal'], label=data['Ord'], alpha=1, 
+        color=sb.color_palette('Spectral', len(data)), 
+        ax=ax, pad=1)
+    # Configure the plot
+    ax.axis('off')
+    #ax.set_title('Word Frequencies Treemap') # titel på treemap
+    # Set the figure's frame color and transparency
+    fig.set_frameon(False)
+    fig.patch.set_alpha(0.0)
+    # Display the plot within Streamlit
+    return fig
