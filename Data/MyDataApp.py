@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, generate_rephrased_sentences, bubble_chart, bad_word_count2, create_treemap
+from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, generate_rephrased_sentences, bubble_chart, bad_word_count_adv, create_treemap, create_wordcloud, bad_word_bar_chart, bad_word_line_chart
 import altair as alt
 import plotly.express as px
 import re
@@ -8,7 +8,7 @@ import squarify
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import seaborn as sb
-from wordcloud import WordCloud
+
 
 st.set_page_config(layout="wide")
 
@@ -74,6 +74,8 @@ with st.sidebar:
     job_ads = df[filter]
     #count av missgynnande ord returnerar df 
     bad_words = bad_word_count(job_ads)
+    bad_words_adv = bad_word_count_adv(job_ads) # behövs för bad words bar och line chart 
+
 
     st.divider()
 
@@ -102,38 +104,9 @@ with outer_col1:
     st.subheader('Missgynnande ord: ')
 
     # Wordcloud 
-    def create_wordcloud(data):
-        # Combine all words into a single string
-        words = ' '.join(data['Ord'])
-
-        # Create a word cloud object with custom attributes
-        wordcloud = WordCloud(
-            width=800,
-            height=400,
-            background_color=None,
-            mode='RGBA',
-            colormap='Spectral',
-            max_words=100,
-            max_font_size=150
-        )
-
-        # Generate the word cloud
-        wordcloud.generate(words)
-
-        # Display the word cloud using matplotlib
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.imshow(wordcloud, interpolation='bilinear')
-        ax.axis('off')
-        #ax.set_title('Word Cloud') # titeltext för wordcloud
-
-        fig.set_frameon(False)
-
-        # Display the plot within Streamlit
-        st.pyplot(fig)
-
     # Call the function to create the word cloud
-    create_wordcloud(bad_words)
-
+    wordcloud_fig = create_wordcloud(bad_words)
+    st.pyplot(wordcloud_fig)
 
     ## Gamla dataframe som innehåller count av missgynnande ord
     #st.dataframe(bad_words)
@@ -142,54 +115,10 @@ with outer_col1:
     treemap_fig = create_treemap(bad_words) # kallar treemap metoden
     st.pyplot(treemap_fig) # plot treemap
 
-    bad_words2 = bad_word_count2(job_ads)
 
     ######################################
     ######## BAR CHART FOR BAD WORDS########
-    def bad_word_count_2(job_ads):
-        target_words = []
-
-        with open("Data/ordlista.txt", "r", encoding='utf-8') as file:
-            lines = file.readlines()
-
-        for line in lines:
-            words = line.split()
-            for word in words:
-                target_words.append(word)
-
-        word_counts = {}
-        for index, ad in job_ads.iterrows():
-            ad_text = ad['description_text'].lower().replace('.', ' ')
-            for target_word in target_words:
-                count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
-                if target_word in word_counts:
-                    word_counts[target_word] += count
-                else:
-                    word_counts[target_word] = count
-
-        word_counts_df = pd.DataFrame.from_dict(word_counts, orient='index', columns=['Count'])
-        word_counts_df.reset_index(inplace=True)
-        word_counts_df.columns = ['Word', 'Count']
-
-        # Melt the DataFrame to convert it to long format
-        melted_df = pd.melt(job_ads, id_vars='occupation_group_label', value_vars=target_words, var_name='Word', value_name='Count')
-        summed_df = melted_df.groupby(['occupation_group_label', 'Word']).sum().reset_index()
-
-        # Merge word counts with summed counts
-        merged_df = pd.merge(summed_df, word_counts_df, on='Word')
-
-        # Create the Altair chart
-        chart = alt.Chart(merged_df).mark_bar().encode(
-            y='occupation_group_label',
-            x=alt.X('sum(Count_x)', stack='normalize'),
-            color=alt.Color('Word', scale=alt.Scale(scheme='category20'))
-        ).properties(
-            width=600
-        )
-
-        return chart
-    
-    bad_words_bar_chart = bad_word_count_2(job_ads)
+    bad_words_bar_chart = bad_word_bar_chart(job_ads)
     st.altair_chart(bad_words_bar_chart, use_container_width=True)
 
     ##############################
@@ -218,104 +147,76 @@ with outer_col2:
     
 
     ## Stackad bar chart grön gul röd
+    def rgy_bar_chart(job_ads):
+        '''flytta till data_methods när fixad'''
+            # Custom color mapping function
+        def get_color(value):
+            if value == 0:
+                return 'green'
+            elif value == 1:
+                return 'yellow'
+            elif value > 1:
+                return 'red'
 
-        # Custom color mapping function
-    def get_color(value):
-        if value == 0:
-            return 'green'
-        elif value == 1:
-            return 'yellow'
-        elif value > 1:
-            return 'red'
+        # Apply color mapping function to create a new 'color' column
+        job_ads['color'] = job_ads['Bad_words'].apply(get_color)
 
-    # Apply color mapping function to create a new 'color' column
-    job_ads['color'] = job_ads['Bad_words'].apply(get_color)
+        # Calculate the count of rows with bad words
+        job_ads['Row_count'] = job_ads['Bad_words'].apply(lambda x: 1 if x > 0 else 0)
 
-    # Calculate the count of rows with bad words
-    job_ads['Row_count'] = job_ads['Bad_words'].apply(lambda x: 1 if x > 0 else 0)
+        # Clone the DataFrame and select specific columns
+        df_total = job_ads[['Bad_words', 'color', 'Row_count']].copy() 
 
-    # Clone the DataFrame and select specific columns
-    df_total = job_ads[['Bad_words', 'color', 'Row_count']].copy() 
+        # Replace values in the 'occupation_group_label' column with 'Total'
+        df_total['occupation_group_label'] = 'Totalt'
 
-    # Replace values in the 'occupation_group_label' column with 'Total'
-    df_total['occupation_group_label'] = 'Totalt'
+        # Concatenate the total DataFrame with the original DataFrame
+        df_combined = pd.concat([job_ads, df_total])
 
-    # Concatenate the total DataFrame with the original DataFrame
-    df_combined = pd.concat([job_ads, df_total])
+        
+        legend_values = ['green', 'yellow', 'red']
+        # Sort the DataFrame by the percentage of green bars in descending order
+        df_combined = df_combined.sort_values(by='color', ascending=False)
 
-    
-    legend_values = ['green', 'yellow', 'red']
-    # Sort the DataFrame by the percentage of green bars in descending order
-    df_combined = df_combined.sort_values(by='color', ascending=False)
+        chart1 = alt.Chart(df_combined).mark_bar().encode( #Chart 1 endast för att visa customizable legend
+            y=alt.Y('occupation_group_label', sort=alt.EncodingSortField(field='color', op='count', order='descending'), axis=alt.Axis(title='Yrkesgrupp')),
+            x=alt.X('count(Row_count)',stack='normalize', axis=alt.Axis(format='%', title='Andel')),
+            color=alt.Color('color',
+                scale=alt.Scale(domain=['Aldrig     0', 'Sällan    1', 'Ofta      >1'],
+                    range=['Green', 'Yellow', 'Red']),
+                sort=['yellow', 'red', 'green'],
+                legend=alt.Legend(title='Förekomst per annons', labelFontSize=12, titleFontSize=14, symbolType='square', symbolSize=300))  # Set custom color scale and legend
+            ).properties(height=400, title='Ordens förekomst').interactive()
 
-    chart1 = alt.Chart(df_combined).mark_bar().encode( #Chart 1 endast för att visa customizable legend
-        y=alt.Y('occupation_group_label', sort=alt.EncodingSortField(field='color', op='count', order='descending'), axis=alt.Axis(title='Yrkesgrupp')),
-        x=alt.X('count(Row_count)',stack='normalize', axis=alt.Axis(format='%', title='Andel')),
-        color=alt.Color('color',
-            scale=alt.Scale(domain=['Aldrig     0', 'Sällan    1', 'Ofta      >1'],
-                range=['Green', 'Yellow', 'Red']),
-            sort=['yellow', 'red', 'green'],
-            legend=alt.Legend(title='Förekomst per annons', labelFontSize=12, titleFontSize=14, symbolType='square', symbolSize=300))  # Set custom color scale and legend
-        ).properties(height=400, title='Ordens förekomst').interactive()
+        chart2 = alt.Chart(df_combined).mark_bar().encode(
+            y=alt.Y('occupation_group_label', sort=alt.EncodingSortField(field='color', op='count', order='descending'), axis=alt.Axis(title='Yrkesgrupp')),
+            x=alt.X('count(Row_count)',stack='normalize', axis=alt.Axis(format='%', title='Andel')),
+            color=alt.Color('color',
+                scale=None)
+            # tooltip placeholder. Fungerar inte med procentandel atm
+            #tooltip=[
+            #    alt.Tooltip('occupation_group_label', title='Ykesgrupp'),
+            #    alt.Tooltip('count(Row_count)', title='Andel', format='.2%'),
+            #    alt.Tooltip('color', title='Förekomst')
+            #]
+            ).properties(height=400, title='Ordens förekomst').interactive()
 
-    chart2 = alt.Chart(df_combined).mark_bar().encode(
-        y=alt.Y('occupation_group_label', sort=alt.EncodingSortField(field='color', op='count', order='descending'), axis=alt.Axis(title='Yrkesgrupp')),
-        x=alt.X('count(Row_count)',stack='normalize', axis=alt.Axis(format='%', title='Andel')),
-        color=alt.Color('color',
-            scale=None)
-         # tooltip placeholder. Fungerar inte med procentandel atm
-        #tooltip=[
-        #    alt.Tooltip('occupation_group_label', title='Ykesgrupp'),
-        #    alt.Tooltip('count(Row_count)', title='Andel', format='.2%'),
-        #    alt.Tooltip('color', title='Förekomst')
-        #]
-        ).properties(height=400, title='Ordens förekomst').interactive()
+        # Layera charts
+        combined_chart = chart1 + chart2
 
-    # Layera charts
-    combined_chart = chart1 + chart2
+        return combined_chart
     
     # Display the chart
-    st.altair_chart(combined_chart, use_container_width=True)
+    red_green_yellow_chart = rgy_bar_chart(job_ads)
+    st.altair_chart(red_green_yellow_chart, use_container_width=True)
+
+
+
 
    ###### LINE CHART#############
-
-def line_chart_func(job_ads):
-    target_words = []
-    with open("Data/ordlista.txt", "r", encoding='utf-8') as file:
-        lines = file.readlines()
-    for line in lines:
-        words = line.split()
-        for word in words:
-            target_words.append(word)
-    word_counts = {}
-    for index, ad in job_ads.iterrows():
-        ad_text = ad['description_text'].lower().replace('.', ' ')
-        for target_word in target_words:
-            count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
-            if target_word in word_counts:
-                word_counts[target_word].append(count)
-            else:
-                word_counts[target_word] = [count]
-    for target_word, counts in word_counts.items():
-        job_ads[target_word] = counts
-    # Convert the 'publication_date' column to datetime
-    job_ads['publication_date'] = pd.to_datetime(job_ads['publication_date'], format='%Y')
-    # Melt the DataFrame to convert it to long format
-    melted_df = pd.melt(job_ads, id_vars=['publication_date'], value_vars=target_words, var_name='Word', value_name='Count')
-    summed_df = melted_df.groupby(['publication_date', 'Word']).sum().reset_index()
-    # Create the Altair line chart
-    chart = alt.Chart(summed_df).mark_line().encode(
-        x=alt.X('year(publication_date):O', axis=alt.Axis(format='%Y', title='Publication Year')),
-        y=alt.Y('sum(Count):Q', title='Count'),
-        color='Word:N'
-    ).properties(
-        width=600
-    )
-    return chart
-
 st.divider()
 ##### Visa line chart
-line_chart = line_chart_func(job_ads)
+line_chart = bad_word_line_chart(job_ads)
 st.altair_chart(line_chart, use_container_width=True)
 ##########################
 st.divider()

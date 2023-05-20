@@ -7,6 +7,7 @@ import squarify
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import seaborn as sb
+from wordcloud import WordCloud
 
 def bad_word_count(job_ads):
     '''Summerar antal dåliga ord i datasetet och skapar en sorterad df med antal förekomster av 
@@ -48,7 +49,9 @@ def bad_word_count(job_ads):
 
     return df
 
-def bad_word_count2(job_ads):
+def bad_word_count_adv(job_ads):
+    '''en mer avancerad bad word count som behåller job_ads as is och lägger till 
+    kolumner för varje ord med count på respektive rad'''
     target_words = []
 
     with open("Data/ordlista.txt", "r", encoding='utf-8') as file:
@@ -208,3 +211,103 @@ def create_treemap(data):
     fig.patch.set_alpha(0.0)
     # Display the plot within Streamlit
     return fig
+
+
+######################
+def create_wordcloud(data):
+    '''skapar wordcloud figur baserat på bad_words df'''
+    # Combine all words into a single string
+    words = ' '.join(data['Ord'])
+    # Create a word cloud object with custom attributes
+    wordcloud = WordCloud(
+        width=800,
+        height=400,
+        background_color=None,
+        mode='RGBA',
+        colormap='Spectral',
+        max_words=100,
+        max_font_size=150
+    )
+    # Generate the word cloud
+    wordcloud.generate(words)
+    # Display the word cloud using matplotlib
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.imshow(wordcloud, interpolation='bilinear')
+    ax.axis('off')
+    #ax.set_title('Word Cloud') # titeltext för wordcloud
+    fig.set_frameon(False)
+    return fig
+
+######################
+
+def bad_word_bar_chart(job_ads):
+    '''skapar bar chart för missgynnande ord'''
+    target_words = []
+    with open("Data/ordlista.txt", "r", encoding='utf-8') as file:
+        lines = file.readlines()
+    for line in lines:
+        words = line.split()
+        for word in words:
+            target_words.append(word)
+    word_counts = {}
+    for index, ad in job_ads.iterrows():
+        ad_text = ad['description_text'].lower().replace('.', ' ')
+        for target_word in target_words:
+            count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
+            if target_word in word_counts:
+                word_counts[target_word] += count
+            else:
+                word_counts[target_word] = count
+    word_counts_df = pd.DataFrame.from_dict(word_counts, orient='index', columns=['Count'])
+    word_counts_df.reset_index(inplace=True)
+    word_counts_df.columns = ['Word', 'Count']
+    # Melt the DataFrame to convert it to long format
+    melted_df = pd.melt(job_ads, id_vars='occupation_group_label', value_vars=target_words, var_name='Word', value_name='Count')
+    summed_df = melted_df.groupby(['occupation_group_label', 'Word']).sum().reset_index()
+    # Merge word counts with summed counts
+    merged_df = pd.merge(summed_df, word_counts_df, on='Word')
+    # Create the Altair chart
+    chart = alt.Chart(merged_df).mark_bar().encode(
+        y='occupation_group_label',
+        x=alt.X('sum(Count_x)', stack='normalize'),
+        color=alt.Color('Word', scale=alt.Scale(scheme='category20'))
+    ).properties(
+        width=600
+    )
+    return chart
+
+#############################
+
+def bad_word_line_chart(job_ads):
+    target_words = []
+    with open("Data/ordlista.txt", "r", encoding='utf-8') as file:
+        lines = file.readlines()
+    for line in lines:
+        words = line.split()
+        for word in words:
+            target_words.append(word)
+    word_counts = {}
+    for index, ad in job_ads.iterrows():
+        ad_text = ad['description_text'].lower().replace('.', ' ')
+        for target_word in target_words:
+            count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
+            if target_word in word_counts:
+                word_counts[target_word].append(count)
+            else:
+                word_counts[target_word] = [count]
+    for target_word, counts in word_counts.items():
+        job_ads[target_word] = counts
+    # Convert the 'publication_date' column to datetime
+    job_ads['publication_date'] = pd.to_datetime(job_ads['publication_date'], format='%Y')
+    # Melt the DataFrame to convert it to long format
+    melted_df = pd.melt(job_ads, id_vars=['publication_date'], value_vars=target_words, var_name='Word', value_name='Count')
+    summed_df = melted_df.groupby(['publication_date', 'Word']).sum().reset_index()
+    # Create the Altair line chart
+    chart = alt.Chart(summed_df).mark_line().encode(
+        x=alt.X('year(publication_date):O', axis=alt.Axis(format='%Y', title='Publication Year')),
+        y=alt.Y('sum(Count):Q', title='Count'),
+        color='Word:N'
+    ).properties(
+        width=600
+    )
+    return chart
