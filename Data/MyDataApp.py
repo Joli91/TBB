@@ -88,9 +88,12 @@ with st.sidebar:
     st.title('')
     st.title('')
     st.title('')
+    st.title('')
+    st.title('')
+    st.title('')
     #Länkar till fornötter från syftestext
     st.write ("Länkar till fotnoter: ")
-    markdown_text = "[¹JobTech](https://jobtechdev.se/sv) [²Gaucher,Friesen,Kay-2011](https://ideas.wharton.upenn.edu/wp-content/uploads/2018/07/Gaucher-Friesen-Kay-2011.pdf?fbclid=IwAR0JFSPgZP3olTZG5d-_B4KvOI5msLjxaE9wH_fiKY8nQHtXlVNRzh940DE) [³Tietoevry](https://www.tietoevry.com/se/nyhetsrum/alla-nyheter-och-pressmeddelanden/pressmeddelande/2021/06/ordval-i-jobbannonser-star-i-vagen-for-kvinnor-i-it-branschen--sa-okade-tietoevry-antalet-kvinnliga-sokanden/?fbclid=IwAR0wdO3vI1KfTr7aqq7-7p3QhiW4UkSbszoUBWqEexzMwmtK43SgL0KMCOY)"
+    markdown_text = "[¹JobTech](https://jobtechdev.se/sv) [²Gaucher et al (2011)](https://ideas.wharton.upenn.edu/wp-content/uploads/2018/07/Gaucher-Friesen-Kay-2011.pdf) [³Tietoevry](https://www.tietoevry.com/se/nyhetsrum/alla-nyheter-och-pressmeddelanden/pressmeddelande/2021/06/ordval-i-jobbannonser-star-i-vagen-for-kvinnor-i-it-branschen--sa-okade-tietoevry-antalet-kvinnliga-sokanden/)"
     st.markdown(markdown_text)
 
     ##############################
@@ -174,6 +177,7 @@ with outer_col2:
 
         # Replace values in the 'occupation_group_label' column with 'Total'
         df_total['occupation_group_label'] = 'Totalt'
+        df_total['occupation_label'] = 'Totalt' # Lade till för att se Totalt ist för null //Kim
 
         # Concatenate the total DataFrame with the original DataFrame
         df_combined = pd.concat([job_ads, df_total])
@@ -213,19 +217,34 @@ with outer_col2:
 
 
         # Chart 2 visar faktisk data
-        chart2 = alt.Chart(df_combined).transform_calculate(
-            order=f"-indexof({bar_order}, datum.color)"
-        ).mark_bar().encode(
-            y=alt.Y('occupation_group_label', 
-                    sort=occupation_group_labels , # sorterar y axeln på count av ordens förekomst
-                    axis=alt.Axis(title='Yrkesgrupp')),
-            x=alt.X('count(Row_count)', stack='normalize', axis=alt.Axis(format='%', title='Andel')),
-            color=alt.Color('color', 
-                            scale=alt.Scale(domain=color_order, 
-                            range=[green_color, yellow_color, red_color]),
-                            sort=bar_order),
-                            order="order:Q"
-
+        if 'Alla' in occupation_group: # Lade till if statement för att se jobbtitlar //Kim
+            chart2 = alt.Chart(df_combined).transform_calculate(
+                order=f"-indexof({bar_order}, datum.color)"
+            ).mark_bar().encode(
+                y=alt.Y('occupation_group_label', 
+                        sort=occupation_group_labels , # sorterar y axeln på count av ordens förekomst
+                        axis=alt.Axis(title='Yrkesgrupp')),
+                x=alt.X('count(Row_count)', stack='normalize', axis=alt.Axis(format='%', title='Andel')),
+                color=alt.Color('color', 
+                                scale=alt.Scale(domain=color_order, 
+                                range=[green_color, yellow_color, red_color]),
+                                sort=bar_order),
+                                order="order:Q"
+            ).properties(height=400, title='Ordens förekomst').interactive()
+        else: # Lade till if statement för att se jobbtitlar //Kim
+            chart2 = alt.Chart(df_combined).transform_calculate(
+                order=f"-indexof({bar_order}, datum.color)"
+            ).mark_bar().encode(
+                y=alt.Y('occupation_label', 
+                        sort=occupation_group_labels , # sorterar y axeln på count av ordens förekomst
+                        axis=alt.Axis(title='Yrkesgrupp')),
+                x=alt.X('count(Row_count)', stack='normalize', axis=alt.Axis(format='%', title='Andel')),
+                color=alt.Color('color', 
+                                scale=alt.Scale(domain=color_order, 
+                                range=[green_color, yellow_color, red_color]),
+                                sort=bar_order),
+                                order="order:Q"
+            ).properties(height=400, title='Ordens förekomst').interactive()
 
             # tooltip placeholder. Fungerar inte med procentandel atm
             # tooltip=[
@@ -233,7 +252,6 @@ with outer_col2:
             #     alt.Tooltip('count(Row_count)', title='Andel', format='.2%'),
             #     alt.Tooltip('color', title='Förekomst')
             # ]
-        ).properties(height=400, title='Ordens förekomst').interactive()
 
         # Layera charts
         #combined_chart = chart1 + chart2
@@ -244,9 +262,6 @@ with outer_col2:
     # Display the chart
     red_green_yellow_chart = rgy_bar_chart(job_ads)
     st.altair_chart(red_green_yellow_chart, use_container_width=True)
-
-
-
 
    ###### LINE CHART#############
 st.divider()

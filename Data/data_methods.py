@@ -2,7 +2,6 @@ import re
 import pandas as pd
 import altair as alt
 import plotly.express as px
-import plotly
 import squarify
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
