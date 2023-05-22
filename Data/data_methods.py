@@ -134,15 +134,8 @@ def bubble_chart(job_ads):
    # Merge keyword_df with the count dataframe on the 'Keyword' column
     merged_df = keyword_df.merge(df_counts, on='Keyword')
 
-    # Calculate the average count
-    avg_count = merged_df['Count'].mean()
-
-    # Calculate the scaled size column
-    scaling_factor = 25  # Adjust the scaling factor to control the difference in sizes
-    merged_df['ScaledSize'] = merged_df['Count'].apply(lambda x: scaling_factor * x if x > avg_count else scaling_factor * avg_count)
-
     # Create bubble chart using Plotly
-    fig = px.scatter(merged_df, x='Sentiment', y='Count', size='ScaledSize', color='Color', color_discrete_map=color_map, hover_data=['Keyword'])
+    fig = px.scatter(merged_df, x='Sentiment', y='Count', size='Count', color='Wordtype', color_discrete_map=color_map, hover_data=['Keyword'])
 
     # Update layout
     fig.update_layout(
