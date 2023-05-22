@@ -111,6 +111,10 @@ with st.sidebar:
     ##############################
     
 st.header('Överblick')
+
+
+
+
 # Skapa kolumner    
 outer_col1, outer_col2 = st.columns([1, 1], gap="medium")
 
@@ -118,10 +122,7 @@ with outer_col1:
     # Sektion för dåliga ord
     st.subheader('Missgynnande ord: ')
 
-    # Wordcloud 
-    # Call the function to create the word cloud
-    wordcloud_fig = create_wordcloud(bad_words)
-    st.pyplot(wordcloud_fig)
+
 
     ## Gamla dataframe som innehåller count av missgynnande ord
     #st.dataframe(bad_words)
@@ -130,7 +131,11 @@ with outer_col1:
 
 
     ##############################
- 
+    # Wordcloud 
+    # Call the function to create the word cloud
+    wordcloud_fig = create_wordcloud(bad_words)
+    st.pyplot(wordcloud_fig)
+
     
 
     ##############################
@@ -202,7 +207,7 @@ with outer_col2:
                     range=['Green', 'Yellow', 'Red']),
                 sort=['yellow', 'red', 'green'],
                 legend=alt.Legend(title='Förekomst per annons', labelFontSize=12, titleFontSize=14, symbolType='square', symbolSize=300))  # Set custom color scale and legend
-            ).properties(height=400, title='Ordens förekomst').interactive()
+            ).properties(height=400).interactive()
 
 
         # Define the desired order of colors
@@ -224,7 +229,9 @@ with outer_col2:
                                 range=[green_color, yellow_color, red_color]),
                                 sort=bar_order),
                                 order="order:Q"
-            ).properties(height=400, title='Ordens förekomst').interactive()
+            ).properties(height=400, 
+                         #title='Ordens förekomst'
+                         ).interactive()
         else: # Lade till if statement för att se jobbtitlar //Kim
             chart2 = alt.Chart(df_combined).transform_calculate(
                 order=f"-indexof({bar_order}, datum.color)"
@@ -257,9 +264,8 @@ with outer_col2:
     red_green_yellow_chart = rgy_bar_chart(job_ads)
     st.altair_chart(red_green_yellow_chart, use_container_width=True)
 
-   ###### LINE CHART#############
-st.divider()
-##### Visa line chart
+
+    ######### LINE CHART ########
 line_chart = bad_word_line_chart(job_ads)
 st.altair_chart(line_chart, use_container_width=True)
 ##########################

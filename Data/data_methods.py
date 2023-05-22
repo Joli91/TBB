@@ -8,6 +8,8 @@ import matplotlib.cm as cm
 import seaborn as sb
 from wordcloud import WordCloud
 import random
+import streamlit as st
+
 
 def bad_word_count(job_ads):
     '''Summerar antal dåliga ord i datasetet och skapar en sorterad df med antal förekomster av 
