@@ -2,33 +2,23 @@ import re
 import pandas as pd
 import altair as alt
 import plotly.express as px
-import squarify
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import seaborn as sb
 from wordcloud import WordCloud
 import random
+import streamlit as st
 
-def bad_word_count(job_ads):
+@st.cache_data
+def bad_word_count(job_ads, ordlista):
     '''Summerar antal dåliga ord i datasetet och skapar en sorterad df med antal förekomster av 
     respektive ord'''
-
-    # List of words to count occurrences for
-    target_words = []
-
-    with open("Data/ordlista.txt", "r", encoding='utf-8') as file:
-        lines = file.readlines()
-
-    for line in lines:
-        words = line.split()
-        for word in words:
-            target_words.append(word)
 
     # Count occurrences of target words
     word_counts = {}
     for index, ad in job_ads.iterrows():
         ad_text = ad['description_text'].lower().replace('.', ' ')
-        for target_word in target_words:
+        for target_word in ordlista:
             count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
             if target_word in word_counts:
                 word_counts[target_word] += count
@@ -49,36 +39,9 @@ def bad_word_count(job_ads):
 
     return df
 
-def bad_word_count_adv(job_ads):
-    '''en mer avancerad bad word count som behåller job_ads as is och lägger till 
-    kolumner för varje ord med count på respektive rad'''
-    target_words = []
-
-    with open("Data/ordlista.txt", "r", encoding='utf-8') as file:
-        lines = file.readlines()
-
-    for line in lines:
-        words = line.split()
-        for word in words:
-            target_words.append(word)
-
-    word_counts = {}
-    for index, ad in job_ads.iterrows():
-        ad_text = ad['description_text'].lower().replace('.', ' ')
-        for target_word in target_words:
-            count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
-            if target_word in word_counts:
-                word_counts[target_word].append(count)
-            else:
-                word_counts[target_word] = [count]
-
-    for target_word, counts in word_counts.items():
-        job_ads[target_word] = counts
-
-    return job_ads
-
 ###########################################################
 
+@st.cache_data
 def bad_ads_and_words(job_ads):
     '''Räknar antal annonser som innehåller dåliga ord, summerar antalet dåliga ord
     och räknar ut ett genomsnitt på antal dåliga ord per dålig annons samt procentsats'''
@@ -112,7 +75,7 @@ def filter_years_and_occ_group(df):
     return
 
 ###########################################################
-
+@st.cache_data
 def bubble_chart(job_ads):
     # Load keyword and sentiment data from CSV
     keyword_df = pd.read_csv("Data/keyword_sentiment.csv")
@@ -167,6 +130,7 @@ def generate_rephrased_sentences(sentence, undvik):
     return rephrased_sentences
 
 ######################
+@st.cache_data
 def create_wordcloud(data):
     '''skapar wordcloud figur baserat på bad_words df'''
     # Combine all words into a single string
@@ -212,24 +176,13 @@ def create_wordcloud(data):
     return fig
 
 #############################
+@st.cache_data
+def bad_word_line_chart(job_ads, ordlista):
 
-def bad_word_line_chart(job_ads):
-
-
-
-    
-
-    target_words = []
-    with open("Data/ordlista.txt", "r", encoding='utf-8') as file:
-        lines = file.readlines()
-    for line in lines:
-        words = line.split()
-        for word in words:
-            target_words.append(word)
     word_counts = {}
     for index, ad in job_ads.iterrows():
         ad_text = ad['description_text'].lower().replace('.', ' ')
-        for target_word in target_words:
+        for target_word in ordlista:
             count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
             if target_word in word_counts:
                 word_counts[target_word].append(count)
@@ -240,7 +193,7 @@ def bad_word_line_chart(job_ads):
     # Convert the 'publication_date' column to datetime
     job_ads['publication_date'] = pd.to_datetime(job_ads['publication_date'], format='%Y')
     # Melt the DataFrame to convert it to long format
-    melted_df = pd.melt(job_ads, id_vars=['publication_date'], value_vars=target_words, var_name='Word', value_name='Count')
+    melted_df = pd.melt(job_ads, id_vars=['publication_date'], value_vars=ordlista, var_name='Word', value_name='Count')
     summed_df = melted_df.groupby(['publication_date', 'Word']).sum().reset_index()
     
 
@@ -250,7 +203,7 @@ def bad_word_line_chart(job_ads):
     color_order = list(color_mapping_dict.values())
 
     # Define color scale for the words
-    word_color_scale = alt.Scale(domain=target_words, range=list(color_mapping().values()))
+    word_color_scale = alt.Scale(domain=ordlista, range=list(color_mapping().values()))
 
     #Higlighta datapunkter
     highlight = alt.selection_single(on='mouseover', nearest=True, empty='none', fields=['year(publication_date)'])

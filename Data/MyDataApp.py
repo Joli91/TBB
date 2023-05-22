@@ -3,13 +3,12 @@ import pandas as pd
 from data_methods import *
 import altair as alt
 import plotly.express as px
-import re
-import squarify
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import seaborn as sb
+import streamlit as st
 
-
+ordlista = ['stark', 'drivkraft', 'chef', 'analys', 'analytisk', 'driven', 'individer', 'beslut', 'kompetent', 'självständig']
 
 st.set_page_config(layout="wide")
 
@@ -18,7 +17,7 @@ with open('Data/syftestext.txt', 'r', encoding='utf-8') as g:
     syftestext = g.read()
 
 # Load data
-df = pd.read_json('Data/Testfil_FINAL.json')
+df = pd.read_json('Data/Testfil_FINAL_FINAL.json')
 
 
 # Kod för att gömma index kolumnen i tables. Fungerar ej för dataframes i senaste streamlit version
@@ -74,9 +73,7 @@ with st.sidebar:
     # Filtrerar datasetet enligt interaktiva val i appen
     job_ads = df[filter]
     #count av missgynnande ord returnerar df 
-    bad_words = bad_word_count(job_ads)
-    bad_words_adv = bad_word_count_adv(job_ads) # behövs för bad words bar och line chart 
-
+    bad_words = bad_word_count(job_ads, ordlista)
 
     st.divider()
 
@@ -92,10 +89,6 @@ with st.sidebar:
 
     
     #Tom text för att flytta ner fotnoter
-    st.title('')
-    st.title('')
-    st.title('')
-    st.title('')
     st.title('')
     st.title('')
     st.title('')
@@ -260,7 +253,7 @@ with outer_col2:
    ###### LINE CHART#############
 st.divider()
 ##### Visa line chart
-line_chart = bad_word_line_chart(job_ads)
+line_chart = bad_word_line_chart(job_ads, ordlista)
 st.altair_chart(line_chart, use_container_width=True)
 ##########################
 st.divider()
