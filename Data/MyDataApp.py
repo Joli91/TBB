@@ -181,21 +181,30 @@ with outer_col2:
         # Concatenate the total DataFrame with the original DataFrame
         df_combined = pd.concat([job_ads, df_total])
 
-        
         legend_values = ['Aldrig', 'Ibland', 'Ofta']
-        # Sort the DataFrame by the percentage of green bars in descending order
-        df_combined = df_combined.sort_values(by='Förekomst', ascending=False)
+
+        def sort_occ_labels(kolumn, df_combined):
 
 
-        # Calculate the percentage of greens relative to reds and yellows within each occupation_group_label
-        df_combined['green_percentage'] = df_combined.groupby('occupation_group_label')['Förekomst'].transform(
-            lambda x: (x == 'Aldrig').mean())
+            # Sort the DataFrame by the percentage of green bars in descending order
+            df_combined = df_combined.sort_values(by='Förekomst', ascending=False)
 
-        # Sort the DataFrame based on the green_percentage in descending order
-        df_sorted = df_combined.sort_values(by='green_percentage', ascending=True)
 
-        # Extract the list of values in the occupation_group_label column
-        occupation_group_labels = df_sorted['occupation_group_label'].unique().tolist()
+            # Calculate the percentage of greens relative to reds and yellows within each occupation_group_label
+            df_combined['green_percentage'] = df_combined.groupby(kolumn)['Förekomst'].transform(
+                lambda x: (x == 'Aldrig').mean())
+
+            # Sort the DataFrame based on the green_percentage in descending order
+            df_sorted = df_combined.sort_values(by='green_percentage', ascending=True)
+
+            # Extract the list of values in the occupation_group_label column
+            result = df_sorted[kolumn].unique().tolist()
+
+            return result
+        
+        occupation_group_label = 'occupation_group_label'
+        occupation_label = 'occupation_label'
+
 
 
         #Chart 1 endast för att visa customizable legend
@@ -221,7 +230,7 @@ with outer_col2:
                 order=f"-indexof({bar_order}, datum.Förekomst)"
             ).mark_bar().encode(
                 y=alt.Y('occupation_group_label', 
-                        sort=occupation_group_labels , # sorterar y axeln på count av ordens förekomst
+                        sort=sort_occ_labels(occupation_group_label, df_combined) , # sorterar y axeln på count av ordens förekomst
                         axis=alt.Axis(title='Yrkesgrupp')),
                 x=alt.X('count(Row_count)', stack='normalize', axis=alt.Axis(format='%', title='Andel')),
                 color=alt.Color('Förekomst', 
@@ -237,7 +246,7 @@ with outer_col2:
                 order=f"-indexof({bar_order}, datum.Förekomst)"
             ).mark_bar().encode(
                 y=alt.Y('occupation_label', 
-                        sort=occupation_group_labels , # sorterar y axeln på count av ordens förekomst
+                        sort=sort_occ_labels(occupation_label, df_combined) , # sorterar y axeln på count av ordens förekomst
                         axis=alt.Axis(title='Yrkesgrupp')),
                 x=alt.X('count(Row_count)', stack='normalize', axis=alt.Axis(format='%', title='Andel')),
                 color=alt.Color('Förekomst', 
