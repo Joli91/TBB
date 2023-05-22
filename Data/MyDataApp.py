@@ -154,11 +154,11 @@ with outer_col2:
             # Custom color mapping function
         def get_color(value):
             if value == 0:
-                return 'green'
+                return 'Aldrig'
             elif value == 1:
-                return 'yellow'
+                return 'Ibland'
             elif value > 1:
-                return 'red'
+                return 'Ofta'
             
         # Define custom color schemes
         red_color = "#8B0000"  # Dark red
@@ -166,13 +166,13 @@ with outer_col2:
         green_color = "#006400"  # Pleasing green
 
         # Apply color mapping function to create a new 'color' column
-        job_ads['color'] = job_ads['Bad_words'].apply(get_color)
+        job_ads['Förekomst'] = job_ads['Bad_words'].apply(get_color)
 
         # Calculate the count of rows with bad words
         job_ads['Row_count'] = job_ads['Bad_words'].apply(lambda x: 1 if x > 0 else 0)
 
         # Clone the DataFrame and select specific columns
-        df_total = job_ads[['Bad_words', 'color', 'Row_count']].copy() 
+        df_total = job_ads[['Bad_words', 'Förekomst', 'Row_count']].copy() 
 
         # Replace values in the 'occupation_group_label' column with 'Total'
         df_total['occupation_group_label'] = 'Totalt'
@@ -182,14 +182,14 @@ with outer_col2:
         df_combined = pd.concat([job_ads, df_total])
 
         
-        legend_values = ['green', 'yellow', 'red']
+        legend_values = ['Aldrig', 'Ibland', 'Ofta']
         # Sort the DataFrame by the percentage of green bars in descending order
-        df_combined = df_combined.sort_values(by='color', ascending=False)
+        df_combined = df_combined.sort_values(by='Förekomst', ascending=False)
 
 
         # Calculate the percentage of greens relative to reds and yellows within each occupation_group_label
-        df_combined['green_percentage'] = df_combined.groupby('occupation_group_label')['color'].transform(
-            lambda x: (x == 'green').mean())
+        df_combined['green_percentage'] = df_combined.groupby('occupation_group_label')['Förekomst'].transform(
+            lambda x: (x == 'Aldrig').mean())
 
         # Sort the DataFrame based on the green_percentage in descending order
         df_sorted = df_combined.sort_values(by='green_percentage', ascending=True)
@@ -200,31 +200,31 @@ with outer_col2:
 
         #Chart 1 endast för att visa customizable legend
         chart1 = alt.Chart(df_combined).mark_bar().encode( 
-            y=alt.Y('occupation_group_label', sort=alt.EncodingSortField(field='color', op='count', order='descending'), axis=alt.Axis(title='Yrkesgrupp')),
+            y=alt.Y('occupation_group_label', sort=alt.EncodingSortField(field='Förekomst', op='count', order='descending'), axis=alt.Axis(title='Yrkesgrupp')),
             x=alt.X('count(Row_count)',stack='normalize', axis=alt.Axis(format='%', title='Andel')),
-            color=alt.Color('color',
-                scale=alt.Scale(domain=['Aldrig     0', 'Sällan    1', 'Ofta      >1'],
-                    range=['Green', 'Yellow', 'Red']),
-                sort=['yellow', 'red', 'green'],
+            color=alt.Color('Förekomst',
+                scale=alt.Scale(domain=['Aldrig     0', 'Ibland    1', 'Ofta      >1'],
+                    range=['Aldrig', 'Ibland', 'Ofta']),
+                sort=['Ibland', 'Ofta', 'Aldrig'],
                 legend=alt.Legend(title='Förekomst per annons', labelFontSize=12, titleFontSize=14, symbolType='square', symbolSize=300))  # Set custom color scale and legend
             ).properties(height=400).interactive()
 
 
         # Define the desired order of colors
-        color_order = ['green', 'yellow', 'red']  # sets color of bars
-        bar_order = ['red', 'yellow', 'green'] # sätter ordning på färger i bars. Är av någon anledning reversed.
+        color_order = ['Aldrig', 'Ibland', 'Ofta']  # sets color of bars
+        bar_order = ['Ofta', 'Ibland', 'Aldrig'] # sätter ordning på färger i bars. Är av någon anledning reversed.
 
 
         # Chart 2 visar faktisk data
         if 'Alla' in occupation_group: # Lade till if statement för att se jobbtitlar //Kim
             chart2 = alt.Chart(df_combined).transform_calculate(
-                order=f"-indexof({bar_order}, datum.color)"
+                order=f"-indexof({bar_order}, datum.Förekomst)"
             ).mark_bar().encode(
                 y=alt.Y('occupation_group_label', 
                         sort=occupation_group_labels , # sorterar y axeln på count av ordens förekomst
                         axis=alt.Axis(title='Yrkesgrupp')),
                 x=alt.X('count(Row_count)', stack='normalize', axis=alt.Axis(format='%', title='Andel')),
-                color=alt.Color('color', 
+                color=alt.Color('Förekomst', 
                                 scale=alt.Scale(domain=color_order, 
                                 range=[green_color, yellow_color, red_color]),
                                 sort=bar_order),
@@ -234,13 +234,13 @@ with outer_col2:
                          ).interactive()
         else: # Lade till if statement för att se jobbtitlar //Kim
             chart2 = alt.Chart(df_combined).transform_calculate(
-                order=f"-indexof({bar_order}, datum.color)"
+                order=f"-indexof({bar_order}, datum.Förekomst)"
             ).mark_bar().encode(
                 y=alt.Y('occupation_label', 
                         sort=occupation_group_labels , # sorterar y axeln på count av ordens förekomst
                         axis=alt.Axis(title='Yrkesgrupp')),
                 x=alt.X('count(Row_count)', stack='normalize', axis=alt.Axis(format='%', title='Andel')),
-                color=alt.Color('color', 
+                color=alt.Color('Förekomst', 
                                 scale=alt.Scale(domain=color_order, 
                                 range=[green_color, yellow_color, red_color]),
                                 sort=bar_order),
