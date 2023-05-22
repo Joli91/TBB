@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from data_methods import bad_word_count, bad_ads_and_words, bar_chart_st, generate_rephrased_sentences, bubble_chart, bad_word_count_adv, create_treemap, create_wordcloud, bad_word_bar_chart, bad_word_line_chart
+from data_methods import *
 import altair as alt
 import plotly.express as px
 import re
@@ -114,15 +114,8 @@ with outer_col1:
     ## Gamla dataframe som innehåller count av missgynnande ord
     #st.dataframe(bad_words)
 
-    
-    treemap_fig = create_treemap(bad_words) # kallar treemap metoden
-    st.pyplot(treemap_fig) # plot treemap
 
 
-    ######################################
-    ######## BAR CHART FOR BAD WORDS########
-    bad_words_bar_chart = bad_word_bar_chart(job_ads)
-    st.altair_chart(bad_words_bar_chart, use_container_width=True)
 
     ##############################
  
