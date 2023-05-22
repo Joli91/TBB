@@ -299,7 +299,6 @@ keywords = df_gpt["Keyword"].unique()
 selected_keyword = st.selectbox("Välj ord:", keywords, key='ordval')
 
 filtered_df_gpt = df_gpt[df_gpt['Keyword'] ==  selected_keyword].reset_index(drop=True)
-st.header('mening')
 st.header('De tre vanligaste kontexterna där ordet "' + str(selected_keyword) + '" förekommer:')
 
 if not st.button("Generera omformulerade meningsförslag"):
