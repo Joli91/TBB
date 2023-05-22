@@ -271,7 +271,7 @@ st.write ("Sentiment är en analys som visar negativ, neutral och positiv inverk
 
 # Display the bubble chart
 fig = bubble_chart(job_ads)
-st.plotly_chart(fig)
+st.plotly_chart(fig, use_container_width=True)
 
 #kod för att köra chatgpt funktionen
 # Load CSV file into DataFrame
