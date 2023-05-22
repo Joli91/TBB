@@ -112,25 +112,6 @@ def filter_years_and_occ_group(df):
 
 ###########################################################
 
-def bar_chart_st(job_ads):
-    red_ads = 0
-    yellow_ads = 0
-    green_ads = 0
-
-    for index, ad in job_ads.iterrows():
-        if ad['Bad_words'] == 0:
-            green_ads += 1
-        elif ad['Bad_words'] == 1:
-            yellow_ads += 1
-        elif ad['Bad_words'] > 1:
-            red_ads += 1
-        else:
-            continue
-
-    return green_ads, yellow_ads, red_ads
-
-###########################################################
-
 def bubble_chart(job_ads):
     # Load keyword and sentiment data from CSV
     keyword_df = pd.read_csv("Data/keyword_sentiment.csv")
@@ -242,12 +223,24 @@ def bad_word_line_chart(job_ads):
     # Melt the DataFrame to convert it to long format
     melted_df = pd.melt(job_ads, id_vars=['publication_date'], value_vars=target_words, var_name='Word', value_name='Count')
     summed_df = melted_df.groupby(['publication_date', 'Word']).sum().reset_index()
+    
+    #Higlighta datapunkter
+    highlight = alt.selection_single(on='mouseover', nearest=True, empty='none', fields=['year(publication_date)'])
+
+
     # Create the Altair line chart
-    chart = alt.Chart(summed_df).mark_line().encode(
+    chart = alt.Chart(summed_df).mark_line(size=3).encode(
         x=alt.X('year(publication_date):O', axis=alt.Axis(format='%Y', title='Publication Year')),
         y=alt.Y('sum(Count):Q', title='Count'),
+        #color='Word:N'
         color='Word:N'
-    ).properties(
-        width=600
+        ).properties(
+        
     )
+    #chart.add_selection(highlight)
+
+    # Add magnet effect when hovering over data points
+
+    
+
     return chart

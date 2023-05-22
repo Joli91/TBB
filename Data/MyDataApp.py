@@ -79,6 +79,17 @@ with st.sidebar:
 
     st.divider()
 
+    # Navigeringslänkar:
+    st.markdown('''
+    Sektioner
+    - [Syfte](#syfte)
+    - [Överblick](#urval)
+    - [Sentimentanalys](#dataanalys)
+    - [Förslag](#mening)
+    ''', unsafe_allow_html=True)
+
+
+    
     #Tom text för att flytta ner fotnoter
     st.title('')
     st.title('')
@@ -126,20 +137,9 @@ with outer_col1:
 with outer_col2:
     # Sektion för Total inom IT    
     st.subheader('Urval:')
-    bad_ads = bad_ads_and_words(job_ads)
-    st.table(bad_ads)
-    gammal_bar_chart_placeholder = ('''
-    #Visa bar chart via stremlit istället för matplotlib
-    green, yellow, red = bar_chart_st(job_ads)
-    chart_data = pd.DataFrame({'Antal annonser': [green, yellow, red]}, index=['Aldrig', 'Sällan', 'Ofta'])
-    colors = ['#32CD32', '#FFC107', '#FF0000']
-    
-    bars = alt.Chart(chart_data.reset_index()).mark_bar().encode(
-        x=alt.X('index', title='Ordens förekomst'), y=alt.Y('Antal annonser', title='Antal annonser'), 
-        color=alt.Color('index', title= 'Ordens förekomst', scale=alt.Scale(domain=['Aldrig', 'Sällan', 'Ofta'], range=colors))
-        ).properties(width=400, height=350)
+    #bad_ads = bad_ads_and_words(job_ads) # gamla tabellen för snitt och andel dåliga annonser
+    #st.table(bad_ads)
 
-    st.altair_chart(bars)''')
     
 
     ## Stackad bar chart grön gul röd
@@ -280,10 +280,10 @@ df_gpt = pd.read_csv('Data/keyword_sentence_similarity.csv')
 keywords = df_gpt["Keyword"].unique()
 
 # Create select box
-selected_keyword = st.selectbox("Välj ord:", keywords)
+selected_keyword = st.selectbox("Välj ord:", keywords, key='ordval')
 
 filtered_df_gpt = df_gpt[df_gpt['Keyword'] ==  selected_keyword].reset_index(drop=True)
-
+st.header('mening')
 st.header('De tre vanligaste kontexterna där ordet "' + str(selected_keyword) + '" förekommer:')
 
 if not st.button("Generera omformulerade meningsförslag"):
