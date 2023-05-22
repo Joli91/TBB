@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import seaborn as sb
 from wordcloud import WordCloud
+import random
 
 def bad_word_count(job_ads):
     '''Summerar antal dåliga ord i datasetet och skapar en sorterad df med antal förekomster av 
@@ -186,9 +187,29 @@ def create_wordcloud(data):
         colormap='Spectral',
         max_words=100,
         max_font_size=150
+
     )
     # Generate the word cloud
     wordcloud.generate(words)
+
+    # Define a color mapping for each word
+    color_map = color_mapping()
+
+    def color_func(word, font_size, position, orientation, random_state=None, **kwargs):
+        
+        if word in color_map:
+            return color_map[word]
+        
+        # Generate a random color for each word
+        r = random.randint(0, 255)
+        g = random.randint(0, 255)
+        b = random.randint(0, 255)
+        
+        # Return the RGB color as a string
+        return f'rgb({r}, {g}, {b})'
+
+    wordcloud.recolor(color_func=color_func)
+
     # Display the word cloud using matplotlib
     fig, ax = plt.subplots(figsize=(10, 6))
     ax.imshow(wordcloud, interpolation='bilinear')
@@ -200,6 +221,11 @@ def create_wordcloud(data):
 #############################
 
 def bad_word_line_chart(job_ads):
+
+
+
+    
+
     target_words = []
     with open("Data/ordlista.txt", "r", encoding='utf-8') as file:
         lines = file.readlines()
@@ -224,16 +250,28 @@ def bad_word_line_chart(job_ads):
     melted_df = pd.melt(job_ads, id_vars=['publication_date'], value_vars=target_words, var_name='Word', value_name='Count')
     summed_df = melted_df.groupby(['publication_date', 'Word']).sum().reset_index()
     
+
+    # Get the list of colors from the color mapping
+    color_mapping_dict = color_mapping()
+    word_sort_order = list(color_mapping_dict.keys())
+    color_order = list(color_mapping_dict.values())
+
+    # Define color scale for the words
+    word_color_scale = alt.Scale(domain=target_words, range=list(color_mapping().values()))
+
     #Higlighta datapunkter
     highlight = alt.selection_single(on='mouseover', nearest=True, empty='none', fields=['year(publication_date)'])
 
 
     # Create the Altair line chart
-    chart = alt.Chart(summed_df).mark_line(size=3).encode(
+    chart = alt.Chart(summed_df).transform_calculate(order=f"-indexof({word_sort_order}, datum.Word)").mark_line(size=3).encode(
         x=alt.X('year(publication_date):O', axis=alt.Axis(format='%Y', title='Publication Year')),
         y=alt.Y('sum(Count):Q', title='Count'),
         #color='Word:N'
-        color='Word:N'
+        #color=alt.Color('Word:N', scale=word_color_scale)
+        color=alt.Color('Word:N', scale=alt.Scale(domain=word_sort_order,
+                                                  range=color_order
+                                                  )) #scale=word_color_scale)
         ).properties(
         
     )
@@ -244,3 +282,20 @@ def bad_word_line_chart(job_ads):
     
 
     return chart
+
+def color_mapping():
+    '''väljer färg för orden i wordcloud och line chart'''
+    color_mapping = {
+    'analytisk': '#FF0000',  # Red
+    'driven': '#00FF00',  # Green
+    'stark': '#0000FF',  # Blue
+    'analys': '#FFA500',  # Orange
+    'drivkraft': '#FFFF00',  # Yellow
+    'kompetent': '#800080',  # Purple
+    'chef': '#FFC0CB',  # Pink
+    'beslut': '#008080',  # Teal
+    'individer': '#FF6347',  # Tomato
+    'självständig': '#808080'  # Gray
+}
+
+    return color_mapping

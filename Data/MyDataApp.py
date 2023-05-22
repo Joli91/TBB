@@ -10,6 +10,7 @@ import matplotlib.cm as cm
 import seaborn as sb
 
 
+
 st.set_page_config(layout="wide")
 
 # Syftestext input
