@@ -115,8 +115,8 @@ def filter_years_and_occ_group(df):
 
 ###########################################################
 
-def bubble_chart(job_ads):
-    # Load keyword and sentiment data from CSV
+def sentiment_df(job_ads):
+        # Load keyword and sentiment data from CSV
     keyword_df = pd.read_csv("Data/keyword_sentiment.csv")
 
     # Count occurrences of target words in description_text
@@ -132,9 +132,18 @@ def bubble_chart(job_ads):
 
     # Create a dataframe with the counts of target words
     df_counts = pd.DataFrame({'Keyword': list(word_counts.keys()), 'Count': list(word_counts.values())})
-    color_map = {'missgynnande ord': 'red', 'gynnande ord': 'green'}
+    
    # Merge keyword_df with the count dataframe on the 'Keyword' column
     merged_df = keyword_df.merge(df_counts, on='Keyword')
+
+    return merged_df
+
+def bubble_chart(data):
+
+    merged_df = sentiment_df(data)
+
+    color_map = {'missgynnande ord': 'red', 'gynnande ord': 'green'}
+
 
     # Create bubble chart using Plotly
     fig = px.scatter(merged_df, x='Sentiment', y='Count', size='Count', color='Wordtype', color_discrete_map=color_map, hover_data=['Keyword'])

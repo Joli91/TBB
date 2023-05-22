@@ -289,6 +289,24 @@ st.write ("Sentiment är en analys som visar negativ, neutral och positiv inverk
 fig = bubble_chart(job_ads)
 st.plotly_chart(fig, use_container_width=True)
 
+
+
+bar_chart_data = sentiment_df(job_ads)
+bar_chart_sum = bar_chart_data.groupby('Wordtype')['Count'].sum().reset_index()
+
+color_map = {'missgynnande ord': 'darkred', 'gynnande ord': 'green'}
+
+# Create the Altair chart
+chart = alt.Chart(bar_chart_sum).mark_bar().encode(
+    x='Count',
+    y='Wordtype',
+    color=alt.Color('Wordtype', scale=alt.Scale(domain=list(color_map.keys()), range=list(color_map.values())))
+)
+
+# Display the chart using Streamlit
+st.altair_chart(chart, use_container_width=True)
+
+
 #kod för att köra chatgpt funktionen
 # Load CSV file into DataFrame
 df_gpt = pd.read_csv('Data/keyword_sentence_similarity.csv')
