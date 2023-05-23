@@ -75,7 +75,6 @@ with st.sidebar:
     job_ads = df[filter]
     #count av missgynnande ord returnerar df 
     bad_words = bad_word_count(job_ads)
-    bad_words_adv = bad_word_count_adv(job_ads) # behövs för bad words bar och line chart 
 
 
     st.divider()
