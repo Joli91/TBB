@@ -12,9 +12,9 @@ import seaborn as sb
 
 st.set_page_config(layout="wide")
 
-# Syftestext input
-with open('Data/syftestext.txt', 'r', encoding='utf-8') as g:
-    syftestext = g.read()
+#Kort intro text
+with open('Data/intro.txt', 'r', encoding='utf-8') as g:
+    intro = g.read()
 
 # Load data
 df = pd.read_json('Data/Testfil_FINAL.json')
@@ -37,17 +37,16 @@ st.markdown(hide_table_row_index, unsafe_allow_html=True)
 ##############################
 
 # Title
-st.title('The Bouncing Benjamins 🏀')
-st.header('- Mångfald och jämställdhet i IT-branschen')
-## Syfte
-st.header('Syfte')
-# Syftestext
-st.markdown(f'<span style="word-wrap:break-word;">{syftestext}</span>', unsafe_allow_html=True)
+st.title('- Mångfald och jämställdhet inom IT-branschen')
+# Introtext
+st.markdown(f'<span style="word-wrap:break-word;">{intro}</span>', unsafe_allow_html=True)
 
 st.divider()
 
 #Sidebar för filtrering
 with st.sidebar:    
+    st.write('Ett verktyg av:  The Bouncing Benjamins 🏀')
+    
     # Interatkivitet
     # Slider för år
     min_value = df['publication_date'].min()
@@ -82,40 +81,36 @@ with st.sidebar:
     # Navigeringslänkar:
     st.markdown('''
     Sektioner
-    - [Syfte](#syfte)
-    - [Överblick](#urval)
-    - [Sentimentanalys](#dataanalys)
-    - [Förslag](#mening)
+    - [Introduktion](#mångfald)
+    - [Missgynnande ord](#urval)
+    - [Kontextanalys](#kontextanalys)
+    - [Förslag](#förbättringsförslag)
+    - [Bakgrund](#verktygets)
     ''', unsafe_allow_html=True)
 
-
+    st.divider()
     
     #Tom text för att flytta ner fotnoter
     st.title('')
     st.title('')
     st.title('')
     st.title('')
-    st.title('')
-    st.title('')
-    st.title('')
-    st.title('')
-    st.title('')
-    st.title('')
-    st.title('')
+ 
     #Länkar till fornötter från syftestext
     st.write ("Länkar till fotnoter: ")
-    markdown_text = "[¹JobTech](https://jobtechdev.se/sv) [²Gaucher et al (2011)](https://ideas.wharton.upenn.edu/wp-content/uploads/2018/07/Gaucher-Friesen-Kay-2011.pdf) [³Tietoevry](https://www.tietoevry.com/se/nyhetsrum/alla-nyheter-och-pressmeddelanden/pressmeddelande/2021/06/ordval-i-jobbannonser-star-i-vagen-for-kvinnor-i-it-branschen--sa-okade-tietoevry-antalet-kvinnliga-sokanden/)"
+    markdown_text = "[¹Tietoevry](https://www.tietoevry.com/se/nyhetsrum/alla-nyheter-och-pressmeddelanden/pressmeddelande/2021/06/ordval-i-jobbannonser-star-i-vagen-for-kvinnor-i-it-branschen--sa-okade-tietoevry-antalet-kvinnliga-sokanden/) [²JobTech](https://jobtechdev.se/sv) [³Gaucher et al (2011)](https://ideas.wharton.upenn.edu/wp-content/uploads/2018/07/Gaucher-Friesen-Kay-2011.pdf)"
     st.markdown(markdown_text)
-
     ##############################
     
-st.header('Överblick')
+st.header('Förekomst av orden ')
+st.write('Verktyget visualiserar data från ett öppet dataset, tillgängliggjort av JobTech², angående arbetsannonser under perioden 2016-2023.')
+
 # Skapa kolumner    
 outer_col1, outer_col2 = st.columns([1, 1], gap="medium")
 
 with outer_col1:
     # Sektion för dåliga ord
-    st.subheader('Missgynnande ord: ')
+    st.subheader('Missgynnande ord ')
 
     # Wordcloud 
     # Call the function to create the word cloud
@@ -125,10 +120,6 @@ with outer_col1:
     ## Gamla dataframe som innehåller count av missgynnande ord
     #st.dataframe(bad_words)
 
-
-
-
-    ##############################
  
     
 
@@ -136,7 +127,7 @@ with outer_col1:
     
 with outer_col2:
     # Sektion för Total inom IT    
-    st.subheader('Urval:')
+    st.subheader('Urval')
     #bad_ads = bad_ads_and_words(job_ads) # gamla tabellen för snitt och andel dåliga annonser
     #st.table(bad_ads)
 
@@ -223,7 +214,7 @@ with outer_col2:
                                 range=[green_color, yellow_color, red_color]),
                                 sort=bar_order),
                                 order="order:Q"
-            ).properties(height=400, title='Ordens förekomst').interactive()
+            ).properties(height=400).interactive()
         else: # Lade till if statement för att se jobbtitlar //Kim
             chart2 = alt.Chart(df_combined).transform_calculate(
                 order=f"-indexof({bar_order}, datum.color)"
@@ -237,7 +228,7 @@ with outer_col2:
                                 range=[green_color, yellow_color, red_color]),
                                 sort=bar_order),
                                 order="order:Q"
-            ).properties(height=400, title='Ordens förekomst').interactive()
+            ).properties(height=400).interactive()
 
             # tooltip placeholder. Fungerar inte med procentandel atm
             # tooltip=[
@@ -265,13 +256,23 @@ st.altair_chart(line_chart, use_container_width=True)
 st.divider()
 ##########################
 
-st.header('Dataanalys')
+st.header('Kontextanalys ')
 
-st.write ("Sentiment är en analys som visar negativ, neutral och positiv inverkan på kontexten som ordet befinner sig i. Där av stärker vi studierna i att visa att dessa ord påverkar arbetsannonsernas uppfattning.")
+#Sentiment förklaringstext
+with open('Data/sentiment.txt', 'r', encoding='utf-8') as g:
+    sentimenttext = g.read()
+
+# Sentiment text
+st.markdown(f'<span style="word-wrap:break-word;">{sentimenttext}</span>', unsafe_allow_html=True)
 
 # Display the bubble chart
 fig = bubble_chart(job_ads)
 st.plotly_chart(fig, use_container_width=True)
+
+##############
+st.divider()
+
+st.header('Förbättringsförslag genom AI')
 
 #kod för att köra chatgpt funktionen
 # Load CSV file into DataFrame
@@ -283,8 +284,8 @@ keywords = df_gpt["Keyword"].unique()
 selected_keyword = st.selectbox("Välj ord:", keywords, key='ordval')
 
 filtered_df_gpt = df_gpt[df_gpt['Keyword'] ==  selected_keyword].reset_index(drop=True)
-st.header('mening')
-st.header('De tre vanligaste kontexterna där ordet "' + str(selected_keyword) + '" förekommer:')
+
+st.subheader('De tre vanligaste kontexterna där ordet "' + str(selected_keyword) + '" förekommer:')
 
 if not st.button("Generera omformulerade meningsförslag"):
     for index, row in filtered_df_gpt.iterrows():
@@ -307,3 +308,13 @@ else:
 
 ######################################
 st.divider()
+
+st.header('Verktygets bakgrund ')
+
+#Avslutande syftestext
+with open('Data/syftestext.txt', 'r', encoding='utf-8') as g:
+    syftestext = g.read()
+
+# Syftestext
+st.markdown(f'<span style="word-wrap:break-word;">{syftestext}</span>', unsafe_allow_html=True)
+
