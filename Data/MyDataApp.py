@@ -97,11 +97,33 @@ with st.sidebar:
     ##############################
     
 st.header('Förekomst av orden ')
-st.write('Verktyget visualiserar data från ett öppet dataset, tillgängliggjort av JobTech², angående arbetsannonser under perioden 2016-2023.')
 st.title('')
 
-# Skapa kolumner    
+# Skapa kolumner 
+outer_col3, outer_col4 = st.columns([1, 1], gap="medium")
 outer_col1, outer_col2 = st.columns([1, 1], gap="medium")
+
+with outer_col3:
+    st.write('Verktyget visualiserar data från ett öppet dataset, tillgängliggjort av JobTech², angående arbetsannonser under perioden 2016-2023.')
+
+with outer_col4:
+    
+
+    def calculate_bad_words_percentage(df):
+        total_rows = len(df)
+        bad_words_rows = len(df[df['Bad_words'] > 0])
+        percentage = (bad_words_rows / total_rows) * 100
+        filtered_df = df[df['Bad_words'] > 0]  # Filter rows with values greater than 0
+        mean_number = round(filtered_df['Bad_words'].mean(), 1)  # Calculate mean number
+        return int(percentage), mean_number
+
+        
+    percentage, mean_number = calculate_bad_words_percentage(job_ads)
+    
+    ##### KPI ######
+
+    st.metric(label='Andel annonser med missgynnande ord', value=(f"{percentage}%"))
+    st.metric(label='Snitt ord / annons', value=mean_number)
 
 with outer_col1:
     # Sektion för dåliga ord
