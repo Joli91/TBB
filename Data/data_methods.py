@@ -48,7 +48,7 @@ def filter_years_and_occ_group(df):
     return
 
 ###########################################################
-
+@st.cache_data
 def sentiment_df(job_ads):
         # Load keyword and sentiment data from CSV
     keyword_df = pd.read_csv("Data/keyword_sentiment.csv")
@@ -196,23 +196,39 @@ def bad_word_line_chart(job_ads, ordlista):
     word_color_scale = alt.Scale(domain=ordlista, range=list(color_mapping().values()))
 
     #Higlighta datapunkter
-    highlight = alt.selection_single(on='mouseover', nearest=True, empty='none', fields=['year(publication_date)'])
-
+    nearest = alt.selection_single(on='mouseover', nearest=True, empty='none')
 
     # Create the Altair line chart
-    chart = alt.Chart(summed_df).transform_calculate(order=f"-indexof({word_sort_order}, datum.Word)").mark_line(size=3).encode(
-        x=alt.X('year(publication_date):O', axis=alt.Axis(format='%Y', title='Publication Year')),
-        y=alt.Y('sum(Count):Q', title='Count'),
-        #color='Word:N'
-        #color=alt.Color('Word:N', scale=word_color_scale)
+    line = alt.Chart(summed_df).transform_calculate(order=f"-indexof({word_sort_order}, datum.Word)").mark_line(size=2, 
+                                                                                                                interpolate='monotone' # mjukar upp linjerna
+                                                                                                                ).encode(
+        x=alt.X('year(publication_date):O', axis=alt.Axis(format='%Y', title='Publiceringsår')),
+        y=alt.Y('sum(Count):Q', title='Antal'),
         color=alt.Color('Word:N', scale=alt.Scale(domain=word_sort_order,
-                                                  range=color_order
-                                                  )) #scale=word_color_scale)
-        ).properties(
+                                                  range=color_order), legend=alt.Legend(title='Ord'),
+                                                  ), 
+        ).properties(height=600
         
     )
-    #chart.add_selection(highlight)
 
+
+
+
+    dot_chart = alt.Chart(summed_df).mark_circle().encode(
+    x="year(publication_date):T",
+    y="sum(Count):Q",
+    color=alt.Color('Word:N', legend=None),
+    tooltip=[
+        alt.Tooltip('Word:N', title='Ord'),
+        alt.Tooltip('sum(Count):Q', title='Antal'),
+        alt.Tooltip('year(publication_date)', title='Publiceringsår'),
+    ]
+).add_selection(nearest)
+
+    chart = line + dot_chart  
+
+    
+    
     # Add magnet effect when hovering over data points
 
     
