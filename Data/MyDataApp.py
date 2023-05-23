@@ -100,7 +100,7 @@ st.header('Förekomst av orden ')
 st.title('')
 
 # Skapa kolumner 
-outer_col3, outer_col4 = st.columns([1, 1], gap="medium")
+outer_col3, outer_col4, outer_col5 = st.columns([2, 1, 1], gap="medium")
 outer_col1, outer_col2 = st.columns([1, 1], gap="medium")
 
 with outer_col3:
@@ -110,6 +110,7 @@ with outer_col4:
     
 
     def calculate_bad_words_percentage(df):
+        '''ersätter gamla bad_ads_and_words :) '''
         total_rows = len(df)
         bad_words_rows = len(df[df['Bad_words'] > 0])
         percentage = (bad_words_rows / total_rows) * 100
@@ -119,11 +120,22 @@ with outer_col4:
 
         
     percentage, mean_number = calculate_bad_words_percentage(job_ads)
+
+    snitt_procent = 45 # snitt på totala datan används för att visa skillnader i metric vid filtrering
+    snitt_bad_words = 1.5 # snitt på totala datan används för att visa skillnader i metric vid filtrering
     
     ##### KPI ######
-
-    st.metric(label='Andel annonser med missgynnande ord', value=(f"{percentage}%"))
-    st.metric(label='Snitt ord / annons', value=mean_number)
+    delta_color = 'inverse' if percentage != snitt_procent else 'off'
+    st.metric(label='Annonser med missgynnande ord', 
+              value=(f"{percentage}%"), 
+              delta=f"{percentage-snitt_procent}%",
+              delta_color=delta_color)
+with outer_col5:
+    delta_color = 'inverse' if mean_number != snitt_bad_words else 'off'
+    st.metric(label='Snitt ord / annons', 
+              value=mean_number,
+              delta=f"{round(mean_number-snitt_bad_words, 1)}",
+              delta_color=delta_color)
 
 with outer_col1:
     # Sektion för dåliga ord
