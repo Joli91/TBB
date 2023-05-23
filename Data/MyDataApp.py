@@ -121,35 +121,16 @@ with outer_col1:
     # Sektion för dåliga ord
     st.subheader('Missgynnande ord: ')
 
-
-
-    ## Gamla dataframe som innehåller count av missgynnande ord
-    #st.dataframe(bad_words)
-
-
-
-
     ##############################
     # Wordcloud 
     # Call the function to create the word cloud
     wordcloud_fig = create_wordcloud(bad_words)
     st.pyplot(wordcloud_fig)
-
-    
-
     ##############################
     
 with outer_col2:
     # Sektion för Total inom IT    
     st.subheader('Urval:')
-    #bad_ads = bad_ads_and_words(job_ads) # gamla tabellen för snitt och andel dåliga annonser
-    #st.table(bad_ads)
-
-    
-
-
-
-    
 
     ###### RGY CHART ######
     # Display the chart
@@ -157,7 +138,86 @@ with outer_col2:
     st.altair_chart(red_green_yellow_chart, use_container_width=True)
 
 
-    ######### LINE CHART ########
+def bad_word_line_chart(job_ads):
+
+
+
+    
+
+    target_words = []
+    with open("Data/ordlista.txt", "r", encoding='utf-8') as file:
+        lines = file.readlines()
+    for line in lines:
+        words = line.split()
+        for word in words:
+            target_words.append(word)
+    word_counts = {}
+    for index, ad in job_ads.iterrows():
+        ad_text = ad['description_text'].lower().replace('.', ' ')
+        for target_word in target_words:
+            count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
+            if target_word in word_counts:
+                word_counts[target_word].append(count)
+            else:
+                word_counts[target_word] = [count]
+    for target_word, counts in word_counts.items():
+        job_ads[target_word] = counts
+    # Convert the 'publication_date' column to datetime
+    job_ads['publication_date'] = pd.to_datetime(job_ads['publication_date'], format='%Y')
+    # Melt the DataFrame to convert it to long format
+    melted_df = pd.melt(job_ads, id_vars=['publication_date'], value_vars=target_words, var_name='Word', value_name='Count')
+    summed_df = melted_df.groupby(['publication_date', 'Word']).sum().reset_index()
+    
+
+    # Get the list of colors from the color mapping
+    color_mapping_dict = color_mapping()
+    word_sort_order = list(color_mapping_dict.keys())
+    color_order = list(color_mapping_dict.values())
+
+    # Define color scale for the words
+    word_color_scale = alt.Scale(domain=target_words, range=list(color_mapping().values()))
+
+    #Higlighta datapunkter
+    nearest = alt.selection_single(on='mouseover', nearest=True, empty='none')
+
+    # Create the Altair line chart
+    line = alt.Chart(summed_df).transform_calculate(order=f"-indexof({word_sort_order}, datum.Word)").mark_line(size=2, 
+                                                                                                                interpolate='monotone' # mjukar upp linjerna
+                                                                                                                ).encode(
+        x=alt.X('year(publication_date):O', axis=alt.Axis(format='%Y', title='Publiceringsår')),
+        y=alt.Y('sum(Count):Q', title='Antal'),
+        color=alt.Color('Word:N', scale=alt.Scale(domain=word_sort_order,
+                                                  range=color_order), legend=alt.Legend(title='Ord'),
+                                                  ), 
+        ).properties(height=600
+        
+    )
+
+
+
+
+    dot_chart = alt.Chart(summed_df).mark_circle().encode(
+    x="year(publication_date):T",
+    y="sum(Count):Q",
+    color=alt.Color('Word:N', legend=None),
+    tooltip=[
+        alt.Tooltip('Word:N', title='Ord'),
+        alt.Tooltip('sum(Count):Q', title='Antal'),
+        alt.Tooltip('year(publication_date)', title='Publiceringsår'),
+    ]
+).add_selection(nearest)
+
+    chart = line + dot_chart  
+
+    
+    
+    # Add magnet effect when hovering over data points
+
+    
+
+    return chart
+
+######### LINE CHART ########
 line_chart = bad_word_line_chart(job_ads)
 st.altair_chart(line_chart, use_container_width=True)
 ##########################
@@ -181,13 +241,15 @@ color_map = {'missgynnande ord': 'darkred', 'gynnande ord': 'green'}
 
 # Create the Altair chart
 chart = alt.Chart(bar_chart_sum).mark_bar().encode(
-    x='Count',
-    y='Wordtype',
+    x=alt.X('Count', title='Förekomst'),
+    y=alt.Y('Wordtype', title='Ordtyp'),
     color=alt.Color('Wordtype', scale=alt.Scale(domain=list(color_map.keys()), range=list(color_map.values())))
-)
+#).configure_legend(title=None, labelFontSize=0, symbolOpacity=0 # behåller legend men döljer dess innehåll
+).configure_legend(disable=True # tar bort legend helt
+).properties(width=600) # bredd på chart
 
 # Display the chart using Streamlit
-st.altair_chart(chart, use_container_width=True)
+st.altair_chart(chart)
 
 
 #kod för att köra chatgpt funktionen
@@ -223,3 +285,4 @@ else:
 
 ######################################
 st.divider()
+

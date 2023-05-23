@@ -128,6 +128,7 @@ def bubble_chart(data):
     fig.update_layout(
         xaxis=dict(title='Sentiment'),
         yaxis=dict(title='Antal'),
+        legend=dict(title='Ordtyp')
     )
 
     return fig
@@ -199,73 +200,15 @@ def create_wordcloud(data):
     return fig
 
 #############################
-
-def bad_word_line_chart(job_ads):
-
+######## Line chart #########
 
 
-    
 
-    target_words = []
-    with open("Data/ordlista.txt", "r", encoding='utf-8') as file:
-        lines = file.readlines()
-    for line in lines:
-        words = line.split()
-        for word in words:
-            target_words.append(word)
-    word_counts = {}
-    for index, ad in job_ads.iterrows():
-        ad_text = ad['description_text'].lower().replace('.', ' ')
-        for target_word in target_words:
-            count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
-            if target_word in word_counts:
-                word_counts[target_word].append(count)
-            else:
-                word_counts[target_word] = [count]
-    for target_word, counts in word_counts.items():
-        job_ads[target_word] = counts
-    # Convert the 'publication_date' column to datetime
-    job_ads['publication_date'] = pd.to_datetime(job_ads['publication_date'], format='%Y')
-    # Melt the DataFrame to convert it to long format
-    melted_df = pd.melt(job_ads, id_vars=['publication_date'], value_vars=target_words, var_name='Word', value_name='Count')
-    summed_df = melted_df.groupby(['publication_date', 'Word']).sum().reset_index()
-    
-
-    # Get the list of colors from the color mapping
-    color_mapping_dict = color_mapping()
-    word_sort_order = list(color_mapping_dict.keys())
-    color_order = list(color_mapping_dict.values())
-
-    # Define color scale for the words
-    word_color_scale = alt.Scale(domain=target_words, range=list(color_mapping().values()))
-
-    #Higlighta datapunkter
-    highlight = alt.selection_single(on='mouseover', nearest=True, empty='none', fields=['year(publication_date)'])
-
-
-    # Create the Altair line chart
-    chart = alt.Chart(summed_df).transform_calculate(order=f"-indexof({word_sort_order}, datum.Word)").mark_line(size=3).encode(
-        x=alt.X('year(publication_date):O', axis=alt.Axis(format='%Y', title='Publication Year')),
-        y=alt.Y('sum(Count):Q', title='Count'),
-        #color='Word:N'
-        #color=alt.Color('Word:N', scale=word_color_scale)
-        color=alt.Color('Word:N', scale=alt.Scale(domain=word_sort_order,
-                                                  range=color_order
-                                                  )) #scale=word_color_scale)
-        ).properties(
-        
-    )
-    #chart.add_selection(highlight)
-
-    # Add magnet effect when hovering over data points
-
-    
-
-    return chart
+#############################
 
 def color_mapping():
     '''väljer färg för orden i wordcloud och line chart'''
-    color_mapping = {
+    '''color_mapping = {
     'analytisk': '#FF0000',  # Red
     'driven': '#00FF00',  # Green
     'stark': '#0000FF',  # Blue
@@ -276,7 +219,20 @@ def color_mapping():
     'beslut': '#008080',  # Teal
     'individer': '#FF6347',  # Tomato
     'självständig': '#808080'  # Gray
-}
+}'''
+
+    color_mapping = {
+        'analytisk': '#91bcdd', 
+        'driven': '#b60033',  
+        'stark': '#b6b975',  
+        'analys': '#b65d54',  
+        'drivkraft': '#f8cc1b',  
+        'kompetent': '#72b043', 
+        'chef': '#a662a8',  
+        'beslut': '#f37324',  
+        'individer': '#057dcd',  
+        'självständig': '#cac7ff'  
+    }
 
     return color_mapping
 
