@@ -76,24 +76,19 @@ with st.sidebar:
 
     st.divider()
 
-    # Navigeringslänkar:
-    st.markdown('''
-    Sektioner
-    - [Introduktion](#mångfald)
-    - [Missgynnande ord](#urval)
-    - [Kontextanalys](#kontextanalys)
-    - [Förslag](#förbättringsförslag)
-    - [Bakgrund](#verktygets)
-    ''', unsafe_allow_html=True)
-
-    st.divider()
-    
     #Tom text för att flytta ner fotnoter
     st.title('')
     st.title('')
     st.title('')
     st.title('')
- 
+    st.title('')
+    st.title('')
+    st.title('')
+    st.title('')
+
+
+    st.divider()
+    
     #Länkar till fornötter från syftestext
     st.write ("Länkar till fotnoter: ")
     markdown_text = "[¹Tietoevry](https://www.tietoevry.com/se/nyhetsrum/alla-nyheter-och-pressmeddelanden/pressmeddelande/2021/06/ordval-i-jobbannonser-star-i-vagen-for-kvinnor-i-it-branschen--sa-okade-tietoevry-antalet-kvinnliga-sokanden/) [²JobTech](https://jobtechdev.se/sv) [³Gaucher et al (2011)](https://ideas.wharton.upenn.edu/wp-content/uploads/2018/07/Gaucher-Friesen-Kay-2011.pdf)"
@@ -102,6 +97,7 @@ with st.sidebar:
     
 st.header('Förekomst av orden ')
 st.write('Verktyget visualiserar data från ett öppet dataset, tillgängliggjort av JobTech², angående arbetsannonser under perioden 2016-2023.')
+st.title('')
 
 # Skapa kolumner    
 outer_col1, outer_col2 = st.columns([1, 1], gap="medium")
@@ -130,11 +126,7 @@ with outer_col1:
     
 with outer_col2:
     # Sektion för Total inom IT    
-    st.subheader('Urval inom yrkesgrupper')
-    
-
-
-
+    st.subheader('Fördelning inom yrke ')
     
 
     ###### RGY CHART ######
@@ -142,7 +134,8 @@ with outer_col2:
     red_green_yellow_chart = rgy_bar_chart(job_ads, occupation_group)
     st.altair_chart(red_green_yellow_chart, use_container_width=True)
 
-   ###### LINE CHART#############
+
+###### LINE CHART#############
 st.divider()
 ##### Visa line chart
 line_chart = bad_word_line_chart(job_ads, ordlista)
@@ -195,6 +188,9 @@ keywords = df_gpt["Keyword"].unique()
 
 # Create select box
 selected_keyword = st.selectbox("Välj ord:", keywords, key='ordval')
+st.title('')
+
+#################
 
 filtered_df_gpt = df_gpt[df_gpt['Keyword'] ==  selected_keyword].reset_index(drop=True)
 
