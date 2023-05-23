@@ -86,6 +86,7 @@ def bubble_chart(data):
     fig.update_layout(
         xaxis=dict(title='Sentiment'),
         yaxis=dict(title='Antal'),
+        legend=dict(title='Ordtyp')
     )
 
     return fig
@@ -157,8 +158,14 @@ def create_wordcloud(data):
     fig.set_frameon(False)
     return fig
 
-#############################
 @st.cache_data
+#############################
+######## Line chart #########
+
+
+
+#############################
+
 def bad_word_line_chart(job_ads, ordlista):
 
     word_counts = {}
@@ -213,7 +220,7 @@ def bad_word_line_chart(job_ads, ordlista):
 
 def color_mapping():
     '''väljer färg för orden i wordcloud och line chart'''
-    color_mapping = {
+    '''color_mapping = {
     'analytisk': '#FF0000',  # Red
     'driven': '#00FF00',  # Green
     'stark': '#0000FF',  # Blue
@@ -224,7 +231,20 @@ def color_mapping():
     'beslut': '#008080',  # Teal
     'individer': '#FF6347',  # Tomato
     'självständig': '#808080'  # Gray
-}
+}'''
+
+    color_mapping = {
+        'analytisk': '#91bcdd', 
+        'driven': '#b60033',  
+        'stark': '#b6b975',  
+        'analys': '#b65d54',  
+        'drivkraft': '#f8cc1b',  
+        'kompetent': '#72b043', 
+        'chef': '#a662a8',  
+        'beslut': '#f37324',  
+        'individer': '#057dcd',  
+        'självständig': '#cac7ff'  
+    }
 
     return color_mapping
 
