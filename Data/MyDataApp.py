@@ -182,6 +182,11 @@ chart = alt.Chart(bar_chart_sum).mark_bar().encode(
 st.altair_chart(chart, use_container_width=True)
 
 
+##############
+st.divider()
+
+st.header('Förbättringsförslag genom AI')
+
 #kod för att köra chatgpt funktionen
 # Load CSV file into DataFrame
 df_gpt = pd.read_csv('Data/keyword_sentence_similarity.csv')
