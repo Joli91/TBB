@@ -17,7 +17,7 @@ with open('Data/intro.txt', 'r', encoding='utf-8') as g:
     intro = g.read()
 
 # Load data
-df = pd.read_json('Data/Testfil_FINAL_FINAL.json')
+df = pd.read_csv('Data/Hela_datan.csv')
 
 
 # Kod för att gömma index kolumnen i tables. Fungerar ej för dataframes i senaste streamlit version

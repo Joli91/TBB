@@ -72,6 +72,7 @@ def sentiment_df(job_ads):
 
     return merged_df
 
+@st.cache_data
 def bubble_chart(data):
 
     merged_df = sentiment_df(data)
@@ -94,6 +95,7 @@ def bubble_chart(data):
 ###########################################################
 
 # Function to generate rephrased sentences using ChatGPT
+@st.cache_data
 def generate_rephrased_sentences(sentence, undvik):
     import openai
     # Set up OpenAI API credentials
@@ -158,14 +160,13 @@ def create_wordcloud(data):
     fig.set_frameon(False)
     return fig
 
-@st.cache_data
 #############################
 ######## Line chart #########
 
 
 
 #############################
-
+@st.cache_data
 def bad_word_line_chart(job_ads, ordlista):
 
     word_counts = {}
@@ -248,7 +249,7 @@ def color_mapping():
 
     return color_mapping
 
-
+@st.cache_data
 def rgy_bar_chart(job_ads, occupation_group):
     '''visar andel av förekomst av missgynnande ord som aldrig 0 sällan 1 ofta > 1'''
         # Custom color mapping function
