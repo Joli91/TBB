@@ -1,0 +1,3 @@
+Sentiment är en analys som visar negativ, neutral och positiv inverkan på kontexten som ordet befinner sig i. 
+
+Där av stärker vi studierna i att visa att dessa ord påverkar arbetsannonsernas uppfattning.

@@ -2,37 +2,23 @@ import re
 import pandas as pd
 import altair as alt
 import plotly.express as px
-import squarify
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import seaborn as sb
 from wordcloud import WordCloud
 import random
-
-
 import streamlit as st
 
-
-def bad_word_count(job_ads):
+@st.cache_data
+def bad_word_count(job_ads, ordlista):
     '''Summerar antal dåliga ord i datasetet och skapar en sorterad df med antal förekomster av 
     respektive ord'''
-
-    # List of words to count occurrences for
-    target_words = []
-
-    with open("Data/ordlista.txt", "r", encoding='utf-8') as file:
-        lines = file.readlines()
-
-    for line in lines:
-        words = line.split()
-        for word in words:
-            target_words.append(word)
 
     # Count occurrences of target words
     word_counts = {}
     for index, ad in job_ads.iterrows():
         ad_text = ad['description_text'].lower().replace('.', ' ')
-        for target_word in target_words:
+        for target_word in ordlista:
             count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
             if target_word in word_counts:
                 word_counts[target_word] += count
@@ -54,34 +40,6 @@ def bad_word_count(job_ads):
     return df
 
 
-
-###########################################################
-
-def bad_ads_and_words(job_ads):
-    '''Räknar antal annonser som innehåller dåliga ord, summerar antalet dåliga ord
-    och räknar ut ett genomsnitt på antal dåliga ord per dålig annons samt procentsats'''
-    bad_ads = 0
-    total_bad_words = 0
-
-    for index, ad in job_ads.iterrows():
-        if ad['Bad_words'] != 0:
-            bad_ads += 1
-            total_bad_words += ad['Bad_words']
-        else:
-            continue
-
-    # Count the average amount of bad words for each job ad
-    average_bad_words = total_bad_words / bad_ads
-    # Count the percentage of bad ads from total ads
-    percentage_bad_ads = str(int(bad_ads / len(job_ads) * 100)) + '%'
-
-    # Create a Pandas DataFrame with the results
-    df2 = pd.DataFrame({
-        "Snitt negativa ord per annons": [average_bad_words],
-        "Andel negativa annonser": [percentage_bad_ads]
-    })
-
-    return df2
 
 ###########################################################
 
@@ -118,11 +76,11 @@ def bubble_chart(data):
 
     merged_df = sentiment_df(data)
 
-    color_map = {'missgynnande ord': 'red', 'gynnande ord': 'green'}
+    color_map = {'missgynnande ord': 'red', 'positiva ord': 'green'}
 
 
     # Create bubble chart using Plotly
-    fig = px.scatter(merged_df, x='Sentiment', y='Count', size='Count', color='Wordtype', color_discrete_map=color_map, hover_data=['Keyword'])
+    fig = px.scatter(merged_df, x='Sentiment', y='Count', size='Count', color='Ordval', color_discrete_map=color_map, hover_data=['Keyword'])
 
     # Update layout
     fig.update_layout(
@@ -155,6 +113,7 @@ def generate_rephrased_sentences(sentence, undvik):
     return rephrased_sentences
 
 ######################
+@st.cache_data
 def create_wordcloud(data):
     '''skapar wordcloud figur baserat på bad_words df'''
     # Combine all words into a single string
@@ -199,12 +158,65 @@ def create_wordcloud(data):
     fig.set_frameon(False)
     return fig
 
+@st.cache_data
 #############################
 ######## Line chart #########
 
 
 
 #############################
+
+def bad_word_line_chart(job_ads, ordlista):
+
+    word_counts = {}
+    for index, ad in job_ads.iterrows():
+        ad_text = ad['description_text'].lower().replace('.', ' ')
+        for target_word in ordlista:
+            count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
+            if target_word in word_counts:
+                word_counts[target_word].append(count)
+            else:
+                word_counts[target_word] = [count]
+    for target_word, counts in word_counts.items():
+        job_ads[target_word] = counts
+    # Convert the 'publication_date' column to datetime
+    job_ads['publication_date'] = pd.to_datetime(job_ads['publication_date'], format='%Y')
+    # Melt the DataFrame to convert it to long format
+    melted_df = pd.melt(job_ads, id_vars=['publication_date'], value_vars=ordlista, var_name='Word', value_name='Count')
+    summed_df = melted_df.groupby(['publication_date', 'Word']).sum().reset_index()
+    
+
+    # Get the list of colors from the color mapping
+    color_mapping_dict = color_mapping()
+    word_sort_order = list(color_mapping_dict.keys())
+    color_order = list(color_mapping_dict.values())
+
+    # Define color scale for the words
+    word_color_scale = alt.Scale(domain=ordlista, range=list(color_mapping().values()))
+
+    #Higlighta datapunkter
+    highlight = alt.selection_single(on='mouseover', nearest=True, empty='none', fields=['year(publication_date)'])
+
+
+    # Create the Altair line chart
+    chart = alt.Chart(summed_df).transform_calculate(order=f"-indexof({word_sort_order}, datum.Word)").mark_line(size=3).encode(
+        x=alt.X('year(publication_date):O', axis=alt.Axis(format='%Y', title='Publication Year')),
+        y=alt.Y('sum(Count):Q', title='Count'),
+        #color='Word:N'
+        #color=alt.Color('Word:N', scale=word_color_scale)
+        color=alt.Color('Word:N', scale=alt.Scale(domain=word_sort_order,
+                                                  range=color_order
+                                                  )) #scale=word_color_scale)
+        ).properties(
+        
+    )
+    #chart.add_selection(highlight)
+
+    # Add magnet effect when hovering over data points
+
+    
+
+    return chart
 
 def color_mapping():
     '''väljer färg för orden i wordcloud och line chart'''
@@ -338,8 +350,7 @@ def rgy_bar_chart(job_ads, occupation_group):
                         sort=bar_order),
         order="order:Q",
         tooltip=custom_tooltip
-    ).properties(height=500,
-                title='Ordens förekomst').interactive()
+    ).properties(height=500).interactive()
 
     combined_chart = chart2
 
