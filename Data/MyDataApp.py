@@ -213,7 +213,7 @@ if not st.button("Generera omformulerade meningsförslag"):
 else:
     if len(filtered_df_gpt) > 0:
         # Get rephrased sentences for all rows
-        rephrased_sentences = [generate_rephrased_sentences(row['Sentence'], selected_keyword) for _, row in filtered_df_gpt.iterrows()]
+        rephrased_sentences = [generate_rephrased_sentences(row['Sentence'], selected_keyword, ordlista) for _, row in filtered_df_gpt.iterrows()]
             
         for index, row in filtered_df_gpt.iterrows():
             st.markdown(f"<span style='color:orange'>{index+1}: {row['Sentence']}</span>", unsafe_allow_html=True)
