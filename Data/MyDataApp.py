@@ -60,7 +60,7 @@ with st.sidebar:
     # Selectbox för yrkesroll
     occupation_group_list = df['occupation_group_label'].unique().tolist()
     occupation_group_list.insert(0, 'Alla')
-    occupation_group = st.selectbox('Välj yrkesroll:', occupation_group_list, )
+    occupation_group = st.selectbox('Välj yrkesgrupp:', occupation_group_list, )
 
     # Konverterar valet av yrkesroll till en lista för att fungera med filtret
     if occupation_group == 'Alla':
@@ -147,133 +147,13 @@ with outer_col2:
 
     
 
-    ## Stackad bar chart grön gul röd
-    def rgy_bar_chart(job_ads):
-        '''flytta till data_methods när fixad'''
-            # Custom color mapping function
-        def get_color(value):
-            if value == 0:
-                return 'Aldrig'
-            elif value == 1:
-                return 'Ibland'
-            elif value > 1:
-                return 'Ofta'
-            
-        # Define custom color schemes
-        red_color = "#8B0000"  # Dark red
-        yellow_color = "#8B8B00"  # Dark yellow
-        green_color = "#006400"  # Pleasing green
-
-        # Apply color mapping function to create a new 'color' column
-        job_ads['Förekomst'] = job_ads['Bad_words'].apply(get_color)
-
-        # Calculate the count of rows with bad words
-        job_ads['Row_count'] = job_ads['Bad_words'].apply(lambda x: 1 if x > 0 else 0)
-
-        # Clone the DataFrame and select specific columns
-        df_total = job_ads[['Bad_words', 'Förekomst', 'Row_count']].copy() 
-
-        # Replace values in the 'occupation_group_label' column with 'Total'
-        df_total['occupation_group_label'] = 'Totalt'
-        df_total['occupation_label'] = 'Totalt' # Lade till för att se Totalt ist för null //Kim
-
-        # Concatenate the total DataFrame with the original DataFrame
-        df_combined = pd.concat([job_ads, df_total])
-
-        legend_values = ['Aldrig', 'Ibland', 'Ofta']
-
-        def sort_occ_labels(kolumn, df_combined):
 
 
-            # Sort the DataFrame by the percentage of green bars in descending order
-            df_combined = df_combined.sort_values(by='Förekomst', ascending=False)
-
-
-            # Calculate the percentage of greens relative to reds and yellows within each occupation_group_label
-            df_combined['green_percentage'] = df_combined.groupby(kolumn)['Förekomst'].transform(
-                lambda x: (x == 'Aldrig').mean())
-
-            # Sort the DataFrame based on the green_percentage in descending order
-            df_sorted = df_combined.sort_values(by='green_percentage', ascending=True)
-
-            # Extract the list of values in the occupation_group_label column
-            result = df_sorted[kolumn].unique().tolist()
-
-            return result
-        
-        occupation_group_label = 'occupation_group_label'
-        occupation_label = 'occupation_label'
-
-        # Define the desired order of colors
-        color_order = ['Aldrig', 'Ibland', 'Ofta']  # sets color of bars
-        bar_order = ['Ofta', 'Ibland', 'Aldrig'] # sätter ordning på färger i bars. Är av någon anledning reversed.
-
-
-        # Chart 2 visar faktisk data
-        if 'Alla' in occupation_group: # Lade till if statement för att se jobbtitlar //Kim
-            chart2 = alt.Chart(df_combined).transform_aggregate(count='count()', groupby=['Förekomst', 'occupation_group_label']
-            ).transform_joinaggregate(total='sum(count)', groupby=['occupation_group_label']
-            ).transform_calculate(
-                order=f"-indexof({bar_order}, datum.Förekomst)",
-                frac=alt.datum.count / alt.datum.total
-
-            ).mark_bar().encode(
-                y=alt.Y('occupation_group_label', 
-                        sort=sort_occ_labels(occupation_group_label, df_combined) , # sorterar y axeln på count av ordens förekomst
-                        axis=alt.Axis(title='Yrkesgrupp')),
-                x=alt.X('count:Q', stack='normalize', axis=alt.Axis(format='%', title='Andel')),
-                color=alt.Color('Förekomst', 
-                                scale=alt.Scale(domain=color_order, 
-                                range=[green_color, yellow_color, red_color]),
-                                sort=bar_order),
-                                order="order:Q",
-                                tooltip=[
-                                    alt.Tooltip('frac:Q', title='Andel', format=' .0%'),
-                                    alt.Tooltip('count:Q', title='Antal'),
-                                    alt.Tooltip('occupation_group_label', title='Yrkesgrupp'),
-                                    alt.Tooltip('Förekomst', title='Förekomst')
-                                ]
-            ).properties(height=400, 
-                         #title='Ordens förekomst'
-                         ).interactive()
-            
-
-
-        else: # Lade till if statement för att se jobbtitlar //Kim
-            chart2 = alt.Chart(df_combined).transform_aggregate(count='count()', groupby=['Förekomst', 'occupation_label']
-            ).transform_joinaggregate(total='sum(count)', groupby=['occupation_label']
-            ).transform_calculate(
-                order=f"-indexof({bar_order}, datum.Förekomst)",
-                frac=alt.datum.count / alt.datum.total
-            ).mark_bar().encode(
-                y=alt.Y('occupation_label', 
-                        sort=sort_occ_labels(occupation_label, df_combined) , # sorterar y axeln på count av ordens förekomst
-                        axis=alt.Axis(title='Yrkesgrupp')),
-                x=alt.X('count:Q', stack='normalize', axis=alt.Axis(format='%', title='Andel')),
-                color=alt.Color('Förekomst', 
-                                scale=alt.Scale(domain=color_order, 
-                                range=[green_color, yellow_color, red_color]),
-                                sort=bar_order),
-                                order="order:Q",
-                                tooltip=[
-                                    alt.Tooltip('frac:Q', title='Andel', format=' .0%'),
-                                    alt.Tooltip('count:Q', title='Antal'),
-                                    alt.Tooltip('occupation_label', title='Jobbtitel'),
-                                    alt.Tooltip('Förekomst', title='Förekomst')
-                                ]
-            ).properties(height=400, title='Ordens förekomst').interactive()
-
-
-
-
-
-
-        combined_chart = chart2
-
-        return combined_chart
     
+
+    ###### RGY CHART ######
     # Display the chart
-    red_green_yellow_chart = rgy_bar_chart(job_ads)
+    red_green_yellow_chart = rgy_bar_chart(job_ads, occupation_group)
     st.altair_chart(red_green_yellow_chart, use_container_width=True)
 
 
