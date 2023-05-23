@@ -204,20 +204,6 @@ with outer_col2:
         occupation_group_label = 'occupation_group_label'
         occupation_label = 'occupation_label'
 
-
-
-        #Chart 1 endast för att visa customizable legend
-        chart1 = alt.Chart(df_combined).mark_bar().encode( 
-            y=alt.Y('occupation_group_label', sort=alt.EncodingSortField(field='Förekomst', op='count', order='descending'), axis=alt.Axis(title='Yrkesgrupp')),
-            x=alt.X('count(Row_count)',stack='normalize', axis=alt.Axis(format='%', title='Andel')),
-            color=alt.Color('Förekomst',
-                scale=alt.Scale(domain=['Aldrig     0', 'Ibland    1', 'Ofta      >1'],
-                    range=['Aldrig', 'Ibland', 'Ofta']),
-                sort=['Ibland', 'Ofta', 'Aldrig'],
-                legend=alt.Legend(title='Förekomst per annons', labelFontSize=12, titleFontSize=14, symbolType='square', symbolSize=300))  # Set custom color scale and legend
-            ).properties(height=400).interactive()
-
-
         # Define the desired order of colors
         color_order = ['Aldrig', 'Ibland', 'Ofta']  # sets color of bars
         bar_order = ['Ofta', 'Ibland', 'Aldrig'] # sätter ordning på färger i bars. Är av någon anledning reversed.
@@ -225,45 +211,63 @@ with outer_col2:
 
         # Chart 2 visar faktisk data
         if 'Alla' in occupation_group: # Lade till if statement för att se jobbtitlar //Kim
-            chart2 = alt.Chart(df_combined).transform_calculate(
-                order=f"-indexof({bar_order}, datum.Förekomst)"
+            chart2 = alt.Chart(df_combined).transform_aggregate(count='count()', groupby=['Förekomst', 'occupation_group_label']
+            ).transform_joinaggregate(total='sum(count)', groupby=['occupation_group_label']
+            ).transform_calculate(
+                order=f"-indexof({bar_order}, datum.Förekomst)",
+                frac=alt.datum.count / alt.datum.total
+
             ).mark_bar().encode(
                 y=alt.Y('occupation_group_label', 
                         sort=sort_occ_labels(occupation_group_label, df_combined) , # sorterar y axeln på count av ordens förekomst
                         axis=alt.Axis(title='Yrkesgrupp')),
-                x=alt.X('count(Row_count)', stack='normalize', axis=alt.Axis(format='%', title='Andel')),
+                x=alt.X('count:Q', stack='normalize', axis=alt.Axis(format='%', title='Andel')),
                 color=alt.Color('Förekomst', 
                                 scale=alt.Scale(domain=color_order, 
                                 range=[green_color, yellow_color, red_color]),
                                 sort=bar_order),
-                                order="order:Q"
+                                order="order:Q",
+                                tooltip=[
+                                    alt.Tooltip('frac:Q', title='Andel', format=' .0%'),
+                                    alt.Tooltip('count:Q', title='Antal'),
+                                    alt.Tooltip('occupation_group_label', title='Yrkesgrupp'),
+                                    alt.Tooltip('Förekomst', title='Förekomst')
+                                ]
             ).properties(height=400, 
                          #title='Ordens förekomst'
                          ).interactive()
+            
+
+
         else: # Lade till if statement för att se jobbtitlar //Kim
-            chart2 = alt.Chart(df_combined).transform_calculate(
-                order=f"-indexof({bar_order}, datum.Förekomst)"
+            chart2 = alt.Chart(df_combined).transform_aggregate(count='count()', groupby=['Förekomst', 'occupation_label']
+            ).transform_joinaggregate(total='sum(count)', groupby=['occupation_label']
+            ).transform_calculate(
+                order=f"-indexof({bar_order}, datum.Förekomst)",
+                frac=alt.datum.count / alt.datum.total
             ).mark_bar().encode(
                 y=alt.Y('occupation_label', 
                         sort=sort_occ_labels(occupation_label, df_combined) , # sorterar y axeln på count av ordens förekomst
                         axis=alt.Axis(title='Yrkesgrupp')),
-                x=alt.X('count(Row_count)', stack='normalize', axis=alt.Axis(format='%', title='Andel')),
+                x=alt.X('count:Q', stack='normalize', axis=alt.Axis(format='%', title='Andel')),
                 color=alt.Color('Förekomst', 
                                 scale=alt.Scale(domain=color_order, 
                                 range=[green_color, yellow_color, red_color]),
                                 sort=bar_order),
-                                order="order:Q"
+                                order="order:Q",
+                                tooltip=[
+                                    alt.Tooltip('frac:Q', title='Andel', format=' .0%'),
+                                    alt.Tooltip('count:Q', title='Antal'),
+                                    alt.Tooltip('occupation_label', title='Jobbtitel'),
+                                    alt.Tooltip('Förekomst', title='Förekomst')
+                                ]
             ).properties(height=400, title='Ordens förekomst').interactive()
 
-            # tooltip placeholder. Fungerar inte med procentandel atm
-            # tooltip=[
-            #     alt.Tooltip('occupation_group_label', title='Ykesgrupp'),
-            #     alt.Tooltip('count(Row_count)', title='Andel', format='.2%'),
-            #     alt.Tooltip('color', title='Förekomst')
-            # ]
 
-        # Layera charts
-        #combined_chart = chart1 + chart2
+
+
+
+
         combined_chart = chart2
 
         return combined_chart
