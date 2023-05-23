@@ -234,8 +234,8 @@ color_map = {'missgynnande ord': 'darkred', 'positiva ord': 'green'}
 # Create the Altair chart
 chart = alt.Chart(bar_chart_sum).mark_bar().encode(
     x=alt.X('Count', title='Förekomst'),
-    y=alt.Y('Wordtype', title='Ordtyp'),
-    color=alt.Color('Wordtype', scale=alt.Scale(domain=list(color_map.keys()), range=list(color_map.values())))
+    y=alt.Y('Ordval', title='Ordtyp'),
+    color=alt.Color('Ordval', scale=alt.Scale(domain=list(color_map.keys()), range=list(color_map.values())))
 #).configure_legend(title=None, labelFontSize=0, symbolOpacity=0 # behåller legend men döljer dess innehåll
 ).configure_legend(disable=True # tar bort legend helt
 ).properties(width=600) # bredd på chart
