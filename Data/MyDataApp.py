@@ -10,6 +10,7 @@ import matplotlib.cm as cm
 import seaborn as sb
 
 
+
 st.set_page_config(layout="wide")
 
 #Kort intro text
@@ -58,7 +59,7 @@ with st.sidebar:
     # Selectbox för yrkesroll
     occupation_group_list = df['occupation_group_label'].unique().tolist()
     occupation_group_list.insert(0, 'Alla')
-    occupation_group = st.selectbox('Välj yrkesroll:', occupation_group_list, )
+    occupation_group = st.selectbox('Välj yrkesgrupp:', occupation_group_list, )
 
     # Konverterar valet av yrkesroll till en lista för att fungera med filtret
     if occupation_group == 'Alla':
@@ -73,7 +74,6 @@ with st.sidebar:
     job_ads = df[filter]
     #count av missgynnande ord returnerar df 
     bad_words = bad_word_count(job_ads)
-    bad_words_adv = bad_word_count_adv(job_ads) # behövs för bad words bar och line chart 
 
 
     st.divider()
@@ -112,15 +112,20 @@ with outer_col1:
     # Sektion för dåliga ord
     st.subheader('Missgynnande ord ')
 
+
+
+    ## Gamla dataframe som innehåller count av missgynnande ord
+    #st.dataframe(bad_words)
+
+
+
+
+    ##############################
     # Wordcloud 
     # Call the function to create the word cloud
     wordcloud_fig = create_wordcloud(bad_words)
     st.pyplot(wordcloud_fig)
 
-    ## Gamla dataframe som innehåller count av missgynnande ord
-    #st.dataframe(bad_words)
-
- 
     
 
     ##############################
@@ -133,123 +138,17 @@ with outer_col2:
 
     
 
-    ## Stackad bar chart grön gul röd
-    def rgy_bar_chart(job_ads):
-        '''flytta till data_methods när fixad'''
-            # Custom color mapping function
-        def get_color(value):
-            if value == 0:
-                return 'green'
-            elif value == 1:
-                return 'yellow'
-            elif value > 1:
-                return 'red'
-            
-        # Define custom color schemes
-        red_color = "#8B0000"  # Dark red
-        yellow_color = "#8B8B00"  # Dark yellow
-        green_color = "#006400"  # Pleasing green
-
-        # Apply color mapping function to create a new 'color' column
-        job_ads['color'] = job_ads['Bad_words'].apply(get_color)
-
-        # Calculate the count of rows with bad words
-        job_ads['Row_count'] = job_ads['Bad_words'].apply(lambda x: 1 if x > 0 else 0)
-
-        # Clone the DataFrame and select specific columns
-        df_total = job_ads[['Bad_words', 'color', 'Row_count']].copy() 
-
-        # Replace values in the 'occupation_group_label' column with 'Total'
-        df_total['occupation_group_label'] = 'Totalt'
-        df_total['occupation_label'] = 'Totalt' # Lade till för att se Totalt ist för null //Kim
-
-        # Concatenate the total DataFrame with the original DataFrame
-        df_combined = pd.concat([job_ads, df_total])
-
-        
-        legend_values = ['green', 'yellow', 'red']
-        # Sort the DataFrame by the percentage of green bars in descending order
-        df_combined = df_combined.sort_values(by='color', ascending=False)
 
 
-        # Calculate the percentage of greens relative to reds and yellows within each occupation_group_label
-        df_combined['green_percentage'] = df_combined.groupby('occupation_group_label')['color'].transform(
-            lambda x: (x == 'green').mean())
-
-        # Sort the DataFrame based on the green_percentage in descending order
-        df_sorted = df_combined.sort_values(by='green_percentage', ascending=True)
-
-        # Extract the list of values in the occupation_group_label column
-        occupation_group_labels = df_sorted['occupation_group_label'].unique().tolist()
-
-
-        #Chart 1 endast för att visa customizable legend
-        chart1 = alt.Chart(df_combined).mark_bar().encode( 
-            y=alt.Y('occupation_group_label', sort=alt.EncodingSortField(field='color', op='count', order='descending'), axis=alt.Axis(title='Yrkesgrupp')),
-            x=alt.X('count(Row_count)',stack='normalize', axis=alt.Axis(format='%', title='Andel')),
-            color=alt.Color('color',
-                scale=alt.Scale(domain=['Aldrig     0', 'Sällan    1', 'Ofta      >1'],
-                    range=['Green', 'Yellow', 'Red']),
-                sort=['yellow', 'red', 'green'],
-                legend=alt.Legend(title='Förekomst per annons', labelFontSize=12, titleFontSize=14, symbolType='square', symbolSize=300))  # Set custom color scale and legend
-            ).properties(height=400, title='Ordens förekomst').interactive()
-
-
-        # Define the desired order of colors
-        color_order = ['green', 'yellow', 'red']  # sets color of bars
-        bar_order = ['red', 'yellow', 'green'] # sätter ordning på färger i bars. Är av någon anledning reversed.
-
-
-        # Chart 2 visar faktisk data
-        if 'Alla' in occupation_group: # Lade till if statement för att se jobbtitlar //Kim
-            chart2 = alt.Chart(df_combined).transform_calculate(
-                order=f"-indexof({bar_order}, datum.color)"
-            ).mark_bar().encode(
-                y=alt.Y('occupation_group_label', 
-                        sort=occupation_group_labels , # sorterar y axeln på count av ordens förekomst
-                        axis=alt.Axis(title='Yrkesgrupp')),
-                x=alt.X('count(Row_count)', stack='normalize', axis=alt.Axis(format='%', title='Andel')),
-                color=alt.Color('color', 
-                                scale=alt.Scale(domain=color_order, 
-                                range=[green_color, yellow_color, red_color]),
-                                sort=bar_order),
-                                order="order:Q"
-            ).properties(height=400).interactive()
-        else: # Lade till if statement för att se jobbtitlar //Kim
-            chart2 = alt.Chart(df_combined).transform_calculate(
-                order=f"-indexof({bar_order}, datum.color)"
-            ).mark_bar().encode(
-                y=alt.Y('occupation_label', 
-                        sort=occupation_group_labels , # sorterar y axeln på count av ordens förekomst
-                        axis=alt.Axis(title='Yrkesgrupp')),
-                x=alt.X('count(Row_count)', stack='normalize', axis=alt.Axis(format='%', title='Andel')),
-                color=alt.Color('color', 
-                                scale=alt.Scale(domain=color_order, 
-                                range=[green_color, yellow_color, red_color]),
-                                sort=bar_order),
-                                order="order:Q"
-            ).properties(height=400).interactive()
-
-            # tooltip placeholder. Fungerar inte med procentandel atm
-            # tooltip=[
-            #     alt.Tooltip('occupation_group_label', title='Ykesgrupp'),
-            #     alt.Tooltip('count(Row_count)', title='Andel', format='.2%'),
-            #     alt.Tooltip('color', title='Förekomst')
-            # ]
-
-        # Layera charts
-        #combined_chart = chart1 + chart2
-        combined_chart = chart2
-
-        return combined_chart
     
+
+    ###### RGY CHART ######
     # Display the chart
-    red_green_yellow_chart = rgy_bar_chart(job_ads)
+    red_green_yellow_chart = rgy_bar_chart(job_ads, occupation_group)
     st.altair_chart(red_green_yellow_chart, use_container_width=True)
 
-   ###### LINE CHART#############
-st.divider()
-##### Visa line chart
+
+    ######### LINE CHART ########
 line_chart = bad_word_line_chart(job_ads)
 st.altair_chart(line_chart, use_container_width=True)
 ##########################
@@ -269,10 +168,23 @@ st.markdown(f'<span style="word-wrap:break-word;">{sentimenttext}</span>', unsaf
 fig = bubble_chart(job_ads)
 st.plotly_chart(fig, use_container_width=True)
 
-##############
-st.divider()
 
-st.header('Förbättringsförslag genom AI')
+
+bar_chart_data = sentiment_df(job_ads)
+bar_chart_sum = bar_chart_data.groupby('Wordtype')['Count'].sum().reset_index()
+
+color_map = {'missgynnande ord': 'darkred', 'gynnande ord': 'green'}
+
+# Create the Altair chart
+chart = alt.Chart(bar_chart_sum).mark_bar().encode(
+    x='Count',
+    y='Wordtype',
+    color=alt.Color('Wordtype', scale=alt.Scale(domain=list(color_map.keys()), range=list(color_map.values())))
+)
+
+# Display the chart using Streamlit
+st.altair_chart(chart, use_container_width=True)
+
 
 #kod för att köra chatgpt funktionen
 # Load CSV file into DataFrame
