@@ -130,10 +130,7 @@ with outer_col1:
     
 with outer_col2:
     # Sektion för Total inom IT    
-    st.subheader('Urval')
-    #bad_ads = bad_ads_and_words(job_ads) # gamla tabellen för snitt och andel dåliga annonser
-    #st.table(bad_ads)
-
+    st.subheader('Urval inom yrkesgrupper')
     
 
 
@@ -170,15 +167,15 @@ st.plotly_chart(fig, use_container_width=True)
 
 
 bar_chart_data = sentiment_df(job_ads)
-bar_chart_sum = bar_chart_data.groupby('Wordtype')['Count'].sum().reset_index()
+bar_chart_sum = bar_chart_data.groupby('Ordval')['Count'].sum().reset_index()
 
-color_map = {'missgynnande ord': 'darkred', 'gynnande ord': 'green'}
+color_map = {'missgynnande ord': 'darkred', 'positiva ord': 'green'}
 
 # Create the Altair chart
 chart = alt.Chart(bar_chart_sum).mark_bar().encode(
     x='Count',
-    y='Wordtype',
-    color=alt.Color('Wordtype', scale=alt.Scale(domain=list(color_map.keys()), range=list(color_map.values())))
+    y='Ordval',
+    color=alt.Color('Ordval', scale=alt.Scale(domain=list(color_map.keys()), range=list(color_map.values())))
 )
 
 # Display the chart using Streamlit

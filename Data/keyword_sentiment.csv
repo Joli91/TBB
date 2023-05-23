@@ -1,4 +1,4 @@
-﻿Keyword,Sentiment,Wordtype
+﻿Keyword,Sentiment,Ordval
 analys,0.06,missgynnande ord
 analytisk,0.15,missgynnande ord
 beslut,0.06,missgynnande ord
@@ -9,10 +9,10 @@ individer,0.05,missgynnande ord
 kompetent,0.06,missgynnande ord
 självständig,0.10,missgynnande ord
 stark,-0.11,missgynnande ord
-initiativförmåga,0.18,gynnande ord
-solid,0.43,gynnande ord
-inspiration,0.62,gynnande ord
-data,0.18,gynnande ord
-coach,0.31,gynnande ord
-motivation,0.46,gynnande ord
-förståelse,0.18,gynnande ord
+initiativförmåga,0.18,positiva ord
+solid,0.43,positiva ord
+inspiration,0.62,positiva ord
+data,0.18,positiva ord
+coach,0.31,positiva ord
+motivation,0.46,positiva ord
+förståelse,0.18,positiva ord
