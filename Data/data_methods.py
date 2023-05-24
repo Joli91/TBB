@@ -9,7 +9,7 @@ from wordcloud import WordCloud
 import random
 import streamlit as st
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=3600)
 def bad_word_count(job_ads, ordlista):
     '''Summerar antal dåliga ord i datasetet och skapar en sorterad df med antal förekomster av 
     respektive ord'''
@@ -48,7 +48,7 @@ def filter_years_and_occ_group(df):
     return
 
 ###########################################################
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=3600)
 def sentiment_df(job_ads):
         # Load keyword and sentiment data from CSV
     keyword_df = pd.read_csv("Data/keyword_sentiment.csv")
@@ -72,7 +72,7 @@ def sentiment_df(job_ads):
 
     return merged_df
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=3600)
 def bubble_chart(data):
 
     merged_df = sentiment_df(data)
@@ -112,7 +112,7 @@ def generate_rephrased_sentences(sentence, undvik, ordlista):
     return rephrased_sentences
 
 ######################
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=3600)
 def create_wordcloud(data):
     '''skapar wordcloud figur baserat på bad_words df'''
     # Combine all words into a single string
@@ -163,7 +163,7 @@ def create_wordcloud(data):
 
 
 #############################
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=3600)
 def bad_word_line_chart(job_ads, ordlista):
 
     word_counts = {}
@@ -262,7 +262,7 @@ def color_mapping():
 
     return color_mapping
 
-@st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False, ttl=3600)
 def rgy_bar_chart(job_ads, occupation_group):
     '''visar andel av förekomst av missgynnande ord som aldrig 0 sällan 1 ofta > 1'''
         # Custom color mapping function
