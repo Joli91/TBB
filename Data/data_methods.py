@@ -9,7 +9,7 @@ from wordcloud import WordCloud
 import random
 import streamlit as st
 
-
+@st.cache_data(show_spinner=False, ttl=3600)
 def bad_word_count(job_ads, ordlista):
     '''Summerar antal dåliga ord i datasetet och skapar en sorterad df med antal förekomster av 
     respektive ord'''
@@ -112,7 +112,7 @@ def generate_rephrased_sentences(sentence, undvik, ordlista):
     return rephrased_sentences
 
 ######################
-
+@st.cache_data(show_spinner=False, ttl=3600)
 def create_wordcloud(data):
     '''skapar wordcloud figur baserat på bad_words df'''
     # Combine all words into a single string
