@@ -52,7 +52,7 @@ with st.sidebar:
     min_value = df['publication_date'].min()
     max_value = df['publication_date'].max()
 
-    year_interval = st.slider('Välj år', min_value=int(min_value), max_value=int(max_value), value=(2016, 2023))
+    year_interval = st.slider('Välj år', min_value=int(min_value), max_value=int(max_value), value=(2016, 2022))
     st.write('Vald tidsintervall:', year_interval[0],'-',year_interval[1])
 
     # Selectbox för yrkesroll
