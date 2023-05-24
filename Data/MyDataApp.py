@@ -217,12 +217,12 @@ st.title('')
 
 filtered_df_gpt = df_gpt[df_gpt['Keyword'] ==  selected_keyword].reset_index(drop=True)
 
-st.subheader('De tre vanligaste kontexterna där ordet "' + str(selected_keyword) + '" förekommer:')
-
 if not st.button("Generera omformulerade meningsförslag"):
+    st.subheader('Vanliga kontexter där ordet förekommer:')
     for index, row in filtered_df_gpt.iterrows():
         st.markdown(f"<span style='color:orange'>{index+1}: {row['Sentence']}</span>", unsafe_allow_html=True)
 else:
+    st.subheader('Vanliga kontexter där ordet förekommer:')
     if len(filtered_df_gpt) > 0:
         # Get rephrased sentences for all rows
         rephrased_sentences = [generate_rephrased_sentences(row['Sentence'], selected_keyword, ordlista) for _, row in filtered_df_gpt.iterrows()]
