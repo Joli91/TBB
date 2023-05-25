@@ -17,7 +17,7 @@ with open('Data/intro.txt', 'r', encoding='utf-8') as g:
     intro = g.read()
 
 # Load data
-df = pd.read_csv('Data/Hela_datan.csv')
+df = pd.read_csv('Data/Hela_FINAL.csv')
 
 
 # Kod för att gömma index kolumnen i tables. Fungerar ej för dataframes i senaste streamlit version
@@ -174,22 +174,22 @@ with open('Data/sentiment.txt', 'r', encoding='utf-8') as g:
 # Sentiment text
 st.markdown(f'<span style="word-wrap:break-word;">{sentimenttext}</span>', unsafe_allow_html=True)
 
+color_map = {'missgynnande ord': 'darkred', 'positiva ord': 'green'}
+
 # Display the bubble chart
-fig = bubble_chart(job_ads)
+fig = bubble_chart(job_ads, color_map)
 st.plotly_chart(fig, use_container_width=True)
 
 
-
 bar_chart_data = sentiment_df(job_ads)
-bar_chart_sum = bar_chart_data.groupby('Ordval')['Count'].sum().reset_index()
+bar_chart_sum = bar_chart_data.groupby('Ordtyp')['Count'].sum().reset_index()
 
-color_map = {'missgynnande ord': 'darkred', 'positiva ord': 'green'}
 
 # Create the Altair chart
 chart = alt.Chart(bar_chart_sum).mark_bar().encode(
     x=alt.X('Count', title='Förekomst'),
-    y=alt.Y('Ordval', title='Ordtyp'),
-    color=alt.Color('Ordval', scale=alt.Scale(domain=list(color_map.keys()), range=list(color_map.values())))
+    y=alt.Y('Ordtyp', title='Ordtyp'),
+    color=alt.Color('Ordtyp', scale=alt.Scale(domain=list(color_map.keys()), range=list(color_map.values())))
 #).configure_legend(title=None, labelFontSize=0, symbolOpacity=0 # behåller legend men döljer dess innehåll
 ).configure_legend(disable=True # tar bort legend helt
 ).properties(width=600) # bredd på chart
@@ -210,7 +210,7 @@ df_gpt = pd.read_csv('Data/keyword_sentence_similarity.csv')
 keywords = df_gpt["Keyword"].unique()
 
 # Create select box
-selected_keyword = st.selectbox("Välj ord:", keywords, key='ordval')
+selected_keyword = st.selectbox("Välj ord:", keywords, key='Ordtyp')
 st.title('')
 
 #################

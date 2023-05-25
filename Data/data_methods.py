@@ -17,7 +17,7 @@ def bad_word_count(job_ads, ordlista):
     # Count occurrences of target words
     word_counts = {}
     for index, ad in job_ads.iterrows():
-        ad_text = ad['description_text'].lower().replace('.', ' ')
+        ad_text = ad['description_text']
         for target_word in ordlista:
             count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
             if target_word in word_counts:
@@ -56,7 +56,7 @@ def sentiment_df(job_ads):
     # Count occurrences of target words in description_text
     word_counts = {}
     for index, ad in job_ads.iterrows():
-        ad_text = ad['description_text'].lower().replace('.', ' ')
+        ad_text = ad['description_text']
         for target_word in keyword_df['Keyword']:
             count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
             if target_word in word_counts:
@@ -73,15 +73,12 @@ def sentiment_df(job_ads):
     return merged_df
 
 @st.cache_data(show_spinner=False, ttl=3600)
-def bubble_chart(data):
+def bubble_chart(data, color_map):
 
     merged_df = sentiment_df(data)
 
-    color_map = {'missgynnande ord': 'red', 'positiva ord': 'green'}
-
-
     # Create bubble chart using Plotly
-    fig = px.scatter(merged_df, x='Sentiment', y='Count', size='Count', color='Ordval', color_discrete_map=color_map, hover_data=['Keyword'])
+    fig = px.scatter(merged_df, x='Sentiment', y='Count', size='Count', color='Ordtyp', color_discrete_map=color_map, hover_data=['Keyword'])
 
     # Update layout
     fig.update_layout(
@@ -168,7 +165,7 @@ def bad_word_line_chart(job_ads, ordlista):
 
     word_counts = {}
     for index, ad in job_ads.iterrows():
-        ad_text = ad['description_text'].lower().replace('.', ' ')
+        ad_text = ad['description_text']
         for target_word in ordlista:
             count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
             if target_word in word_counts:
