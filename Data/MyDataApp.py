@@ -174,7 +174,7 @@ with open('Data/sentiment.txt', 'r', encoding='utf-8') as g:
 # Sentiment text
 st.markdown(f'<span style="word-wrap:break-word;">{sentimenttext}</span>', unsafe_allow_html=True)
 
-color_map = {'missgynnande ord': 'darkred', 'positiva ord': 'green'}
+color_map = {'missgynnande ord': 'red', 'mer gynnsamma ord': 'green'}
 
 # Display the bubble chart
 fig = bubble_chart(job_ads, color_map)
