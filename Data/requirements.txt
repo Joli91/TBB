@@ -1,6 +1,4 @@
 plotly
 openai
-squarify
 matplotlib
-seaborn
 wordcloud

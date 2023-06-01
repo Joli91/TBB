@@ -3,82 +3,62 @@ import pandas as pd
 import altair as alt
 import plotly.express as px
 import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import seaborn as sb
 from wordcloud import WordCloud
 import random
 import streamlit as st
 
-@st.cache_data(show_spinner=False, ttl=3600)
-def bad_word_count(job_ads, ordlista):
+@st.cache_data(show_spinner=False, ttl=1800, max_entries=6)
+def word_counter(job_ads):
     '''Summerar antal dåliga ord i datasetet och skapar en sorterad df med antal förekomster av 
-    respektive ord'''
+    respektive ord samt genererar en linjediagram för ordantal över tid'''
 
-    # Count occurrences of target words
-    word_counts = {}
-    for index, ad in job_ads.iterrows():
-        ad_text = ad['description_text']
-        for target_word in ordlista:
-            count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
-            if target_word in word_counts:
-                word_counts[target_word] += count
-            else:
-                word_counts[target_word] = count
-
-    # Create a dictionary with the counts of target words
-    target_word_counts = {target_word: count for target_word, count in word_counts.items()}
-
-    # Sort the dictionary by its values in descending order
-    sorted_dict = dict(sorted(target_word_counts.items(), key=lambda x: x[1], reverse=True))
-
-    df = pd.DataFrame.from_dict(sorted_dict, orient='index', columns=['Count'])
-    df = df.reset_index()
-    df.columns = ['Ord', 'Antal']
-    '''
-    df.set_index('Ord', inplace=True)'''
-
-    return df
-
-
-
-###########################################################
-
-def filter_years_and_occ_group(df):
-    '''funktion för filtrering av data enligt de interaktiva element vi har'''
-    return
-
-###########################################################
-@st.cache_data(show_spinner=False, ttl=3600)
-def sentiment_df(job_ads):
-        # Load keyword and sentiment data from CSV
     keyword_df = pd.read_csv("Data/keyword_sentiment.csv")
 
-    # Count occurrences of target words in description_text
-    word_counts = {}
+    ordlista = keyword_df[keyword_df['Ordtyp'] == 'missgynnande ord']['Keyword'].tolist()
+    all_ordlista = keyword_df['Keyword'].tolist()
+
+    word_counts = {target_word: [] for target_word in all_ordlista}
+
     for index, ad in job_ads.iterrows():
         ad_text = ad['description_text']
-        for target_word in keyword_df['Keyword']:
+        for target_word in all_ordlista:
             count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
-            if target_word in word_counts:
-                word_counts[target_word] += count
-            else:
-                word_counts[target_word] = count
+            word_counts[target_word].append(count)
 
-    # Create a dataframe with the counts of target words
-    df_counts = pd.DataFrame({'Keyword': list(word_counts.keys()), 'Count': list(word_counts.values())})
-    
-   # Merge keyword_df with the count dataframe on the 'Keyword' column
-    merged_df = keyword_df.merge(df_counts, on='Keyword')
+    sorted_dict = {
+        target_word: sum(counts) for target_word, counts in word_counts.items()
+    }
 
-    return merged_df
+    wordcloud_count = pd.DataFrame.from_dict(
+        sorted_dict, orient='index', columns=['Count']
+    ).reset_index()
+    wordcloud_count.columns = ['Ord', 'Antal']
 
-@st.cache_data(show_spinner=False, ttl=3600)
-def bubble_chart(data, color_map):
+    wordcloud_count = wordcloud_count.sort_values('Antal', ascending=False)  # Sort by 'Antal' column
 
-    merged_df = sentiment_df(data)
+    # Merge keyword_df with the count dataframe on the 'Keyword' column
+    sentiment_count = keyword_df.merge(wordcloud_count, left_on='Keyword', right_on='Ord', how='left')
+
+    wordcloud_count = wordcloud_count[wordcloud_count['Ord'].isin(ordlista)]  # Filter to include only keywords with 'Ordtyp' as 'missgynnande ord'
+
+    for target_word, counts in word_counts.items():
+        job_ads[target_word] = counts
+
+    # Convert the 'publication_date' column to datetime
+    job_ads['publication_date'] = pd.to_datetime(job_ads['publication_date'], format='%Y')
+    # Melt the DataFrame to convert it to long format
+    melted_df = pd.melt(job_ads, id_vars=['publication_date'], value_vars=ordlista, var_name='Word', value_name='Count')
+    line_chart_count = melted_df.groupby(['publication_date', 'Word']).sum().reset_index()
+
+    return wordcloud_count, line_chart_count, sentiment_count
+
+###########################################################
+
+@st.cache_data(show_spinner=False, ttl=1800, max_entries=6)
+def bubble_chart(color_map, sentiment_count):
 
     # Create bubble chart using Plotly
-    fig = px.scatter(merged_df, x='Sentiment', y='Count', size='Count', color='Ordtyp', color_discrete_map=color_map, hover_data=['Keyword'])
+    fig = px.scatter(sentiment_count, x='Sentiment', y='Antal', size='Antal', color='Ordtyp', color_discrete_map=color_map, hover_data=['Keyword'])
 
     # Update layout
     fig.update_layout(
@@ -109,7 +89,7 @@ def generate_rephrased_sentences(sentence, undvik, ordlista):
     return rephrased_sentences
 
 ######################
-@st.cache_data(show_spinner=False, ttl=3600)
+@st.cache_data(show_spinner=False, ttl=1800, max_entries=6)
 def create_wordcloud(data):
     '''skapar wordcloud figur baserat på bad_words df'''
     # Combine all words into a single string
@@ -157,30 +137,7 @@ def create_wordcloud(data):
 #############################
 ######## Line chart #########
 
-
-
-#############################
-@st.cache_data(show_spinner=False, ttl=3600)
-def bad_word_line_chart(job_ads, ordlista):
-
-    word_counts = {}
-    for index, ad in job_ads.iterrows():
-        ad_text = ad['description_text']
-        for target_word in ordlista:
-            count = len(re.findall(r'\b{}\b'.format(target_word), ad_text))
-            if target_word in word_counts:
-                word_counts[target_word].append(count)
-            else:
-                word_counts[target_word] = [count]
-    for target_word, counts in word_counts.items():
-        job_ads[target_word] = counts
-    # Convert the 'publication_date' column to datetime
-    job_ads['publication_date'] = pd.to_datetime(job_ads['publication_date'], format='%Y')
-    # Melt the DataFrame to convert it to long format
-    melted_df = pd.melt(job_ads, id_vars=['publication_date'], value_vars=ordlista, var_name='Word', value_name='Count')
-    summed_df = melted_df.groupby(['publication_date', 'Word']).sum().reset_index()
-    
-
+def line_chart(line_chart_count, ordlista):
     # Get the list of colors from the color mapping
     color_mapping_dict = color_mapping()
     word_sort_order = list(color_mapping_dict.keys())
@@ -193,7 +150,7 @@ def bad_word_line_chart(job_ads, ordlista):
     nearest = alt.selection_single(on='mouseover', nearest=True, empty='none')
 
     # Create the Altair line chart
-    line = alt.Chart(summed_df).transform_calculate(order=f"-indexof({word_sort_order}, datum.Word)").mark_line(size=2, 
+    line = alt.Chart(line_chart_count).transform_calculate(order=f"-indexof({word_sort_order}, datum.Word)").mark_line(size=2, 
                                                                                                                 interpolate='monotone' # mjukar upp linjerna
                                                                                                                 ).encode(
         x=alt.X('year(publication_date):O', axis=alt.Axis(format='%Y', title='Publiceringsår')),
@@ -205,10 +162,7 @@ def bad_word_line_chart(job_ads, ordlista):
         
     )
 
-
-
-
-    dot_chart = alt.Chart(summed_df).mark_circle().encode(
+    dot_chart = alt.Chart(line_chart_count).mark_circle().encode(
     x="year(publication_date):T",
     y="sum(Count):Q",
     color=alt.Color('Word:N', legend=None),
@@ -219,15 +173,11 @@ def bad_word_line_chart(job_ads, ordlista):
     ]
 ).add_selection(nearest)
 
-    chart = line + dot_chart  
+    line_chart = line + dot_chart
 
-    
-    
-    # Add magnet effect when hovering over data points
+    return line_chart
 
-    
-
-    return chart
+#############################
 
 def color_mapping():
     '''väljer färg för orden i wordcloud och line chart'''
@@ -259,7 +209,7 @@ def color_mapping():
 
     return color_mapping
 
-@st.cache_data(show_spinner=False, ttl=3600)
+@st.cache_data(show_spinner=False, ttl=1800, max_entries=6)
 def rgy_bar_chart(job_ads, occupation_group):
     '''visar andel av förekomst av missgynnande ord som aldrig 0 sällan 1 ofta > 1'''
         # Custom color mapping function

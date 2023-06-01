@@ -2,10 +2,6 @@ import streamlit as st
 import pandas as pd
 from data_methods import *
 import altair as alt
-import plotly.express as px
-import matplotlib.pyplot as plt
-import matplotlib.cm as cm
-import seaborn as sb
 import streamlit as st
 
 ordlista = ['stark', 'drivkraft', 'chef', 'analys', 'analytisk', 'driven', 'individer', 'beslut', 'kompetent', 'självständig']
@@ -72,7 +68,7 @@ with st.sidebar:
     # Filtrerar datasetet enligt interaktiva val i appen
     job_ads = df[filter]
     #count av missgynnande ord returnerar df 
-    bad_words = bad_word_count(job_ads, ordlista)
+    wordcloud_count, line_chart_count, sentiment_count = word_counter(job_ads)
 
     st.divider()
 
@@ -144,7 +140,7 @@ with outer_col1:
     ##############################
     # Wordcloud 
     # Call the function to create the word cloud
-    wordcloud_fig = create_wordcloud(bad_words)
+    wordcloud_fig = create_wordcloud(wordcloud_count)
     st.pyplot(wordcloud_fig)
     ##############################
     
@@ -159,8 +155,10 @@ with outer_col2:
     st.altair_chart(red_green_yellow_chart, use_container_width=True)
 
 ######### LINE CHART ########
-line_chart = bad_word_line_chart(job_ads, ordlista)
-st.altair_chart(line_chart, use_container_width=True)
+line_figure = line_chart(line_chart_count, ordlista)
+st.button(':information_source:', help='Den här linjegrafen visar ordens förekomst under olika år och hur användningen har utvecklats under åren', on_click=None, type='primary')
+
+st.altair_chart(line_figure, use_container_width=True)
 ##########################
 st.divider()
 ##########################
@@ -171,23 +169,26 @@ st.header('Kontextanalys ')
 with open('Data/sentiment.txt', 'r', encoding='utf-8') as g:
     sentimenttext = g.read()
 
+with st.expander("Läs mer om den här grafen:", expanded=False):
+    st.write(f'{sentimenttext}')
+
 # Sentiment text
-st.markdown(f'<span style="word-wrap:break-word;">{sentimenttext}</span>', unsafe_allow_html=True)
+#st.markdown(f'<span style="word-wrap:break-word;">{sentimenttext}</span>', unsafe_allow_html=True)
 
 color_map = {'missgynnande ord': 'red', 'mer gynnsamma ord': 'green'}
 
 # Display the bubble chart
-fig = bubble_chart(job_ads, color_map)
+fig = bubble_chart(color_map, sentiment_count)
 st.plotly_chart(fig, use_container_width=True)
 
 
-bar_chart_data = sentiment_df(job_ads)
-bar_chart_sum = bar_chart_data.groupby('Ordtyp')['Count'].sum().reset_index()
+#bar_chart_data = sentiment_count(job_ads)
+bar_chart_sum = sentiment_count.groupby('Ordtyp')['Antal'].sum().reset_index()
 
 
 # Create the Altair chart
 chart = alt.Chart(bar_chart_sum).mark_bar().encode(
-    x=alt.X('Count', title='Förekomst'),
+    x=alt.X('Antal', title='Förekomst'),
     y=alt.Y('Ordtyp', title='Ordtyp'),
     color=alt.Color('Ordtyp', scale=alt.Scale(domain=list(color_map.keys()), range=list(color_map.values())))
 #).configure_legend(title=None, labelFontSize=0, symbolOpacity=0 # behåller legend men döljer dess innehåll
