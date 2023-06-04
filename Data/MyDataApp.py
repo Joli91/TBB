@@ -48,7 +48,7 @@ with st.sidebar:
     min_value = df['publication_date'].min()
     max_value = df['publication_date'].max()
 
-    year_interval = st.slider('Välj år', min_value=int(min_value), max_value=int(max_value), value=(2016, 2022))
+    year_interval = st.slider('Välj år', min_value=int(min_value), max_value=int(max_value), value=(2016, 2020))
     st.write('Vald tidsintervall:', year_interval[0],'-',year_interval[1])
 
     # Selectbox för yrkesroll
@@ -156,7 +156,6 @@ with outer_col2:
 
 ######### LINE CHART ########
 line_figure = line_chart(line_chart_count, ordlista)
-st.button(':information_source:', help='Den här linjegrafen visar ordens förekomst under olika år och hur användningen har utvecklats under åren', on_click=None, type='primary')
 
 st.altair_chart(line_figure, use_container_width=True)
 ##########################
@@ -211,33 +210,43 @@ df_gpt = pd.read_csv('Data/keyword_sentence_similarity.csv')
 keywords = df_gpt["Keyword"].unique()
 
 # Create select box
-selected_keyword = st.selectbox("Välj ord:", keywords, key='Ordtyp')
-st.title('')
+selected_keyword = st.selectbox("Välj ett missgynnande ord för att se de vanligaste kontexterna där det används i annonser:", keywords, key='Ordtyp')
 
 #################
 
-filtered_df_gpt = df_gpt[df_gpt['Keyword'] ==  selected_keyword].reset_index(drop=True)
+search_input = st.text_input("..eller så skriver du en egen mening (valfritt)", placeholder="Här kan du skriva din egen mening och få den omformulerad." ,max_chars=100, key="search_input")
 
-if not st.button("Generera omformulerade meningsförslag"):
-    st.subheader('Vanliga kontexter där ordet förekommer:')
-    for index, row in filtered_df_gpt.iterrows():
-        st.markdown(f"<span style='color:orange'>{index+1}: {row['Sentence']}</span>", unsafe_allow_html=True)
-else:
-    st.subheader('Vanliga kontexter där ordet förekommer:')
-    if len(filtered_df_gpt) > 0:
-        # Get rephrased sentences for all rows
-        rephrased_sentences = [generate_rephrased_sentences(row['Sentence'], selected_keyword, ordlista) for _, row in filtered_df_gpt.iterrows()]
-            
+st.title('')
+
+if not st.button("Generera omformulerade meningsförslag", help="Om du vill se exempelmeningar från vanligaste kontexter måste textfältet ovan vara tomt."):
+    if len(search_input) > 0:
+        st.text("Knappen genererar en förslagsmening baserad på din egna text.")
+    else:
+        st.text("Knappen genererar förbättringsförslag för vanliga kontexter där ordet förekommer.")
+        filtered_df_gpt = df_gpt[df_gpt['Keyword'] == selected_keyword].reset_index(drop=True)
+        st.subheader('Vanliga kontexter där ordet förekommer:')
         for index, row in filtered_df_gpt.iterrows():
             st.markdown(f"<span style='color:orange'>{index+1}: {row['Sentence']}</span>", unsafe_allow_html=True)
-
-            # Check if the current row index is within the rephrased sentences range
-            if index < len(rephrased_sentences):
-                # Iterate over rephrased sentences for the current row
-                for rephrased_sentence in rephrased_sentences[index]:
-                    st.markdown(f"<span style='color:green'>{rephrased_sentence}</span>", unsafe_allow_html=True)
+else:
+    if len(search_input) > 0:
+        st.subheader('Din valda mening:')
+        selected_sentence = search_input.strip()
+        rephrased_sentences = generate_rephrased_sentences(selected_sentence, "", ordlista)
+        st.markdown(f"<span style='color:orange'>1: {selected_sentence}</span>", unsafe_allow_html=True)
+        for i, rephrased_sentence in enumerate(rephrased_sentences):
+            st.markdown(f"<span style='color:green'>{i+1}: {rephrased_sentence}</span>", unsafe_allow_html=True)
     else:
-        st.text("No rows found.")
+        st.subheader('Vanliga kontexter där ordet förekommer:')
+        filtered_df_gpt = df_gpt[df_gpt['Keyword'] == selected_keyword].reset_index(drop=True)
+        if len(filtered_df_gpt) > 0:
+            rephrased_sentences = [generate_rephrased_sentences(row['Sentence'], selected_keyword, ordlista) for _, row in filtered_df_gpt.iterrows()]
+            for index, row in filtered_df_gpt.iterrows():
+                st.markdown(f"<span style='color:orange'>{index+1}: {row['Sentence']}</span>", unsafe_allow_html=True)
+                if index < len(rephrased_sentences):
+                    for i, rephrased_sentence in enumerate(rephrased_sentences[index]):
+                        st.markdown(f"<span style='color:green'>{i+1}: {rephrased_sentence}</span>", unsafe_allow_html=True)
+        else:
+            st.text("No rows found.")
 
 ######################################
 st.divider()
