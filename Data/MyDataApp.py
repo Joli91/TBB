@@ -3,7 +3,7 @@ import pandas as pd
 from data_methods import *
 import altair as alt
 import streamlit as st
-import webbrowser
+import urllib
 
 ordlista = ['stark', 'drivkraft', 'chef', 'analys', 'analytisk', 'driven', 'individer', 'beslut', 'kompetent', 'självständig']
 
@@ -95,16 +95,21 @@ with st.sidebar:
 
     st.divider()
 
-        # Kontakta oss knapp
-    def open_email_client(email):
-        webbrowser.open(f"mailto:{email}")
-
-    
+    # Kontakta oss knapp
     st.title("Kontakta oss 📧")
     st.write("Klicka på knappen nedan för att komma i kontakt med oss via mail.")
 
-    if st.button("Kontakta oss"):
-        open_email_client("carl.skyllerstedt@gmail.com")
+    email_address = "carl.skyllerstedt@gmail.com"
+    button_text = "Kontakt"
+    subject = "Your Title"
+    body = "The message"
+    
+    # Generate the mailto link with subject and body
+    mailto_link = f"mailto:{email_address}?subject={urllib.parse.quote(subject)}&body={urllib.parse.quote(body)}"
+
+    # Display the button as a link with the mailto link
+    button_html = f'<a href="{mailto_link}">{button_text}</a>'
+    st.sidebar.markdown(button_html, unsafe_allow_html=True)
     ##############################
     
 st.header('Förekomst av orden ')
