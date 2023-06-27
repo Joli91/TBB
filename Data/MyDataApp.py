@@ -101,8 +101,8 @@ with st.sidebar:
 
     email_address = "carl.skyllerstedt@gmail.com"
     button_text = "Kontakt"
-    subject = "Your Title"
-    body = "The message"
+    subject = ""
+    body = ""
     
     # Generate the mailto link with subject and body
     mailto_link = f"mailto:{email_address}?subject={urllib.parse.quote(subject)}&body={urllib.parse.quote(body)}"
