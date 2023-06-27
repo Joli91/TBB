@@ -3,6 +3,7 @@ import pandas as pd
 from data_methods import *
 import altair as alt
 import streamlit as st
+import webbrowser
 
 ordlista = ['stark', 'drivkraft', 'chef', 'analys', 'analytisk', 'driven', 'individer', 'beslut', 'kompetent', 'självständig']
 
@@ -81,15 +82,29 @@ with st.sidebar:
     st.title('')
     st.title('')
     st.title('')
-    st.title('')
 
 
+    
     st.divider()
+
     
     #Länkar till fornötter från syftestext
     st.write ("Länkar till fotnoter: ")
     markdown_text = "[¹Tietoevry](https://www.tietoevry.com/se/nyhetsrum/alla-nyheter-och-pressmeddelanden/pressmeddelande/2021/06/ordval-i-jobbannonser-star-i-vagen-for-kvinnor-i-it-branschen--sa-okade-tietoevry-antalet-kvinnliga-sokanden/) [²JobTech](https://jobtechdev.se/sv) [³Gaucher et al (2011)](https://ideas.wharton.upenn.edu/wp-content/uploads/2018/07/Gaucher-Friesen-Kay-2011.pdf)"
     st.markdown(markdown_text)
+
+    st.divider()
+
+        # Kontakta oss knapp
+    def open_email_client(email):
+        webbrowser.open(f"mailto:{email}")
+
+    
+    st.title("Kontakta oss 📧")
+    st.write("Klicka på knappen nedan för att komma i kontakt med oss via mail.")
+
+    if st.button("Kontakta oss"):
+        open_email_client("carl.skyllerstedt@gmail.com")
     ##############################
     
 st.header('Förekomst av orden ')
